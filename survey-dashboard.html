@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Survey Analytics</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --n1:#f7f7f7;--n2:#efefef;--n3:#e3e3e3;--n4:#d0d0d0;--n5:#b0b0b0;--n7:#686868;--n8:#484848;--n9:#282828;
+  --b1:#e8f0fe;--b5:#4880f0;--b6:#2563e8;--b7:#1a4fd6;--b8:#1340b8;
+  --do1:#fff0ed;--do6:#d44d2e;--do7:#b33520;
+  --g1:#e8f5e9;--g6:#43a047;--g7:#2e7d32;
+  --y1:#fffde7;--y7:#c6a600;--y8:#8d7200;
+  --bg:#fff;--bg-sub:var(--n1);--bg-ho:var(--n2);--bd:var(--n3);
+  --tx:var(--n9);--tx2:var(--n7);--tx3:var(--n5);
+  --pri:var(--b6);--pri-bg:var(--b1);--pri-ho:var(--b7);
+  --ok:var(--g6);--ok-bg:var(--g1);--ok-tx:var(--g7);
+  --wa:var(--y7);--wa-bg:var(--y1);--wa-tx:var(--y8);
+  --er:var(--do6);--er-bg:var(--do1);--er-tx:var(--do7);
+  --sb:216px;--tb:52px;
+  --f:system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+  --m:'JetBrains Mono',monospace;
+  --r:8px;--rc:10px;
+  --sh:0 1px 4px rgba(0,0,0,.06),0 0 0 1px var(--bd);
+}
+html,body{height:100%;font-family:var(--f);background:var(--bg-sub);color:var(--tx);-webkit-font-smoothing:antialiased;}
+button{font-family:var(--f);cursor:pointer;}
+
+/* ══ LOGIN PAGE ══ */
+.login-wrap{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:var(--bg-sub);
+  background-image:linear-gradient(var(--bd) 1px,transparent 1px),linear-gradient(90deg,var(--bd) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+.login-card{
+  background:var(--bg);border:1px solid var(--bd);border-radius:12px;
+  padding:32px 28px;width:340px;
+  box-shadow:0 4px 24px rgba(0,0,0,.08);
+}
+.login-logo{display:flex;align-items:center;gap:8px;margin-bottom:24px;}
+.login-dot{width:8px;height:8px;border-radius:50%;background:var(--pri);}
+.login-name{font-size:14px;font-weight:700;color:var(--tx);letter-spacing:-.01em;}
+.login-badge{font-size:10px;font-weight:600;padding:2px 6px;background:var(--pri-bg);color:var(--pri);border-radius:4px;margin-left:auto;}
+.login-title{font-size:18px;font-weight:700;color:var(--tx);margin-bottom:4px;}
+.login-sub{font-size:13px;color:var(--tx2);margin-bottom:24px;}
+.login-label{font-size:12px;font-weight:500;color:var(--tx2);display:block;margin-bottom:6px;}
+.login-input{
+  width:100%;height:38px;padding:0 12px;
+  border:1px solid var(--bd);border-radius:var(--r);
+  font-size:13px;font-family:var(--f);color:var(--tx);
+  background:var(--bg);transition:border-color .15s,box-shadow .15s;
+}
+.login-input:focus{outline:none;border-color:var(--b5);box-shadow:0 0 0 3px var(--pri-bg);}
+.login-err{
+  font-size:12px;color:var(--er);margin-top:8px;
+  display:none;align-items:center;gap:5px;
+}
+.login-err.show{display:flex;}
+.login-btn{
+  width:100%;height:38px;margin-top:20px;
+  background:var(--pri);color:#fff;border:none;border-radius:var(--r);
+  font-size:13px;font-weight:500;transition:background .15s;
+}
+.login-btn:hover{background:var(--pri-ho);}
+.login-btn:active{background:var(--b8);}
+.login-hint{font-size:11px;color:var(--tx3);text-align:center;margin-top:16px;}
+
+/* ══ LOADING ══ */
+.loading-wrap{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  z-index:999;
+}
+.loading-spinner{
+  width:32px;height:32px;border:2.5px solid var(--n3);
+  border-top-color:var(--pri);border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-size:13px;color:var(--tx2);}
+
+/* ══ APP SHELL ══ */
+.app{display:flex;height:100vh;overflow:hidden;}
+.sb{width:var(--sb);flex-shrink:0;background:var(--bg);border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden;}
+.sb-logo{height:var(--tb);display:flex;align-items:center;gap:8px;padding:0 14px;border-bottom:1px solid var(--bd);flex-shrink:0;}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--pri);}
+.logo-tx{font-size:13px;font-weight:700;color:var(--tx);letter-spacing:-.02em;}
+.logo-badge{margin-left:auto;font-size:10px;font-weight:600;padding:2px 6px;background:var(--pri-bg);color:var(--pri);border-radius:4px;}
+.sb-logout{margin-left:4px;background:none;border:none;color:var(--tx3);font-size:10px;cursor:pointer;padding:2px 4px;border-radius:4px;}
+.sb-logout:hover{background:var(--bg-ho);color:var(--tx2);}
+.sb-scroll{flex:1;overflow-y:auto;padding:8px;}
+.sb-scroll::-webkit-scrollbar{width:3px;}
+.sb-scroll::-webkit-scrollbar-thumb{background:var(--n3);border-radius:2px;}
+.sb-sec{padding:8px 6px 2px;}
+.sb-lbl{font-size:10px;font-weight:600;color:var(--tx3);letter-spacing:.06em;text-transform:uppercase;padding:0 8px;margin-bottom:3px;}
+.ni{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:6px;font-size:13px;font-weight:500;color:var(--tx2);cursor:pointer;transition:background .1s,color .1s;border:none;background:none;width:100%;text-align:left;}
+.ni:hover{background:var(--bg-ho);color:var(--tx);}
+.ni.active{background:var(--pri-bg);color:var(--pri);}
+.ni svg{width:14px;height:14px;flex-shrink:0;opacity:.7;}
+.ni.active svg{opacity:1;}
+.breadcrumb-nav{padding:8px 14px;display:flex;align-items:center;gap:4px;font-size:11px;color:var(--tx3);border-bottom:1px solid var(--bd);flex-shrink:0;flex-wrap:wrap;}
+.bc-link{color:var(--pri);cursor:pointer;font-weight:500;}
+.bc-link:hover{text-decoration:underline;}
+.bc-sep{color:var(--tx3);}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{height:var(--tb);background:var(--bg);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 20px;gap:10px;flex-shrink:0;}
+.tb-title{font-size:14px;font-weight:600;color:var(--tx);}
+.tb-sep{width:1px;height:14px;background:var(--bd);}
+
+/* data source badge */
+.ds-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;color:var(--tx3);
+  margin-left:auto;padding:4px 10px;
+  border:1px solid var(--bd);border-radius:99px;
+  background:var(--bg);
+}
+.ds-dot{width:5px;height:5px;border-radius:50%;}
+.ds-dot.mock{background:var(--wa);}
+.ds-dot.live{background:var(--ok);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.filters{display:flex;gap:4px;}
+.fp{display:inline-flex;align-items:center;height:28px;padding:0 10px;border:1px solid var(--bd);border-radius:6px;font-size:12px;font-weight:500;color:var(--tx2);background:var(--bg);cursor:pointer;transition:all .1s;gap:5px;}
+.fp:hover{border-color:var(--n4);color:var(--tx);}
+.fp.active{background:var(--pri-bg);border-color:var(--pri);color:var(--pri);}
+.fp .dot{width:6px;height:6px;border-radius:50%;}
+.ml-auto{margin-left:auto;}
+.dg{display:flex;gap:3px;}
+.db{height:28px;padding:0 10px;border:1px solid var(--bd);border-radius:6px;font-size:12px;font-weight:500;color:var(--tx2);background:var(--bg);cursor:pointer;transition:all .1s;}
+.db:hover{border-color:var(--n4);color:var(--tx);}
+.db.active{background:var(--pri-bg);border-color:var(--pri);color:var(--pri);}
+.content{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;}
+.content::-webkit-scrollbar{width:4px;}
+.content::-webkit-scrollbar-thumb{background:var(--n3);border-radius:2px;}
+
+/* cards, tables, shared components (same as before) */
+.pg-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.pg-hd-l{display:flex;flex-direction:column;gap:3px;}
+.pg-title{font-size:18px;font-weight:700;color:var(--tx);letter-spacing:-.02em;}
+.pg-sub{font-size:13px;color:var(--tx2);}
+.btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:var(--r);font-size:13px;font-weight:500;border:none;cursor:pointer;transition:background .12s;}
+.btn-pri{background:var(--pri);color:#fff;}.btn-pri:hover{background:var(--pri-ho);}
+.btn-sec{background:var(--bg);border:1px solid var(--bd);color:var(--tx2);}.btn-sec:hover{border-color:var(--n4);color:var(--tx);}
+.btn-sm{height:26px;padding:0 10px;font-size:12px;}
+.card{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rc);overflow:hidden;}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--bd);}
+.ct{font-size:13px;font-weight:600;color:var(--tx);}
+.cm{font-size:11px;color:var(--tx3);}
+.cb{padding:16px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.sc-row{display:grid;gap:10px;}
+.sc{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rc);padding:14px 16px;display:flex;flex-direction:column;gap:5px;position:relative;overflow:hidden;}
+.sc-lbl{font-size:10px;font-weight:600;color:var(--tx3);letter-spacing:.05em;text-transform:uppercase;display:flex;align-items:center;gap:6px;}
+.sc-val{font-size:28px;font-weight:700;color:var(--tx);font-family:var(--m);letter-spacing:-.03em;line-height:1;}
+.sc-dl{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:500;}
+.d-up{color:var(--ok);}.d-dn{color:var(--er);}.d-nu{color:var(--tx3);}
+.sc-sub{font-size:11px;color:var(--tx3);}
+.sc-bar{position:absolute;bottom:0;left:0;right:0;height:3px;}
+.tbadge{display:inline-flex;align-items:center;height:16px;padding:0 5px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+.tb-nps{background:var(--b1);color:var(--b7);}
+.tb-ces{background:var(--g1);color:var(--g7);}
+.tb-csat{background:var(--y1);color:var(--y8);}
+.status{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;}
+.st-live{background:var(--ok-bg);color:var(--ok-tx);}
+.st-draft{background:var(--n2);color:var(--tx2);}
+.st-paused{background:var(--wa-bg);color:var(--wa-tx);}
+.st-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+.prod-card{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rc);padding:18px;cursor:pointer;transition:border-color .15s,box-shadow .15s;display:flex;flex-direction:column;gap:12px;}
+.prod-card:hover{border-color:var(--pri);box-shadow:0 0 0 3px var(--pri-bg);}
+.prod-card-top{display:flex;align-items:center;gap:10px;}
+.prod-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.prod-info{flex:1;}
+.prod-name{font-size:14px;font-weight:600;color:var(--tx);letter-spacing:-.01em;}
+.prod-desc{font-size:12px;color:var(--tx2);margin-top:2px;}
+.prod-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding-top:12px;border-top:1px solid var(--bd);}
+.ps{display:flex;flex-direction:column;gap:1px;}
+.ps-v{font-size:14px;font-weight:700;font-family:var(--m);color:var(--tx);}
+.ps-l{font-size:10px;font-weight:500;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;}
+.prod-footer{display:flex;align-items:center;justify-content:space-between;}
+.prod-modules{font-size:11px;color:var(--tx2);}
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{text-align:left;font-size:10px;font-weight:600;color:var(--tx3);letter-spacing:.05em;text-transform:uppercase;padding:9px 14px;background:var(--bg-sub);border-bottom:1px solid var(--bd);}
+.tbl td{font-size:12px;color:var(--tx2);padding:10px 14px;border-bottom:1px solid var(--n2);vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:var(--bg-sub);}
+.tbl-link{color:var(--pri);font-weight:500;cursor:pointer;}
+.tbl-link:hover{text-decoration:underline;}
+.spill{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:20px;padding:0 5px;border-radius:4px;font-size:11px;font-weight:600;font-family:var(--m);}
+.sp-g{background:var(--ok-bg);color:var(--ok-tx);}
+.sp-a{background:var(--wa-bg);color:var(--wa-tx);}
+.sp-r{background:var(--er-bg);color:var(--er-tx);}
+.sp-b{background:var(--pri-bg);color:var(--b7);}
+.mini-chart{display:flex;align-items:flex-end;gap:2px;height:28px;}
+.mc-bar{flex:1;border-radius:2px 2px 0 0;min-height:3px;}
+.kv-list{display:flex;flex-direction:column;}
+.kv{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid var(--n2);}
+.kv:last-child{border-bottom:none;}
+.kv-k{font-size:12px;font-weight:500;color:var(--tx3);width:140px;flex-shrink:0;}
+.kv-v{font-size:12px;color:var(--tx);flex:1;}
+.fb-bubble{background:var(--bg-sub);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--tx);line-height:1.6;}
+.tag-chips{display:flex;flex-wrap:wrap;gap:5px;}
+.tag-chip{padding:4px 10px;border:1px solid var(--bd);border-radius:99px;font-size:12px;font-weight:500;color:var(--tx2);}
+.tag-chip.sel{background:var(--pri-bg);border-color:var(--pri);color:var(--pri);}
+.rate-wrap{display:flex;align-items:center;gap:18px;}
+.rring{position:relative;width:72px;height:72px;flex-shrink:0;}
+.rring svg{width:72px;height:72px;transform:rotate(-90deg);}
+.rl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--tx);font-family:var(--m);}
+.rate-bd{flex:1;display:flex;flex-direction:column;gap:5px;}
+.ri{display:flex;align-items:center;gap:7px;font-size:12px;}
+.ri-d{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.ri-n{flex:1;color:var(--tx2);font-weight:500;}
+.ri-v{font-family:var(--m);font-weight:600;font-size:12px;color:var(--tx);}
+.tag-bars{display:flex;flex-direction:column;gap:9px;}
+.tbi{display:flex;flex-direction:column;gap:3px;}
+.tbt{display:flex;justify-content:space-between;}
+.tbl2{font-size:12px;font-weight:500;color:var(--tx2);}
+.tbc{font-size:11px;font-weight:600;color:var(--tx3);font-family:var(--m);}
+.tbtr{height:5px;background:var(--n2);border-radius:99px;overflow:hidden;}
+.tbf{height:100%;border-radius:99px;width:0%;transition:width .7s cubic-bezier(.34,1.56,.64,1);}
+.chart-wrap{position:relative;}
+.chart-svg{width:100%;display:block;}
+.chart-leg{display:flex;gap:14px;padding:8px 14px;border-top:1px solid var(--bd);}
+.li{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx2);font-weight:500;}
+.ll{width:14px;height:2px;border-radius:1px;}
+.mod-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--n2);}
+.mod-row:last-child{border-bottom:none;}
+.mod-n{font-size:12px;font-weight:500;color:var(--tx2);flex:1;}
+.mod-p{font-size:10px;color:var(--tx3);font-family:var(--m);}
+.mod-scores{display:flex;gap:5px;align-items:center;}
+.msv{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:34px;}
+.msv-n{font-size:13px;font-weight:700;font-family:var(--m);color:var(--tx);}
+.msv-l{font-size:9px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;}
+.ms-sp{width:1px;height:22px;background:var(--bd);align-self:center;}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px;color:var(--tx3);font-size:13px;gap:8px;}
+@keyframes pulse2{0%,100%{opacity:1;}50%{opacity:.4;}}
+.live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ok);animation:pulse2 1.8s ease-in-out infinite;flex-shrink:0;}
+
+/* skeleton loading */
+.skel{background:linear-gradient(90deg,var(--n2) 25%,var(--n1) 50%,var(--n2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:4px;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-card{height:120px;border-radius:var(--rc);}
+.skel-row{height:44px;margin-bottom:2px;}
+.skel-title{height:22px;width:200px;margin-bottom:12px;}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN PAGE ══ -->
+<div id="loginPage">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">
+        <span class="login-dot"></span>
+        <span class="login-name">Survey Analytics</span>
+        <span class="login-badge">Beta</span>
+      </div>
+      <p class="login-title">登入</p>
+      <p class="login-sub">請輸入密碼以存取觀測後台</p>
+      <label class="login-label" for="pwInput">密碼</label>
+      <input class="login-input" id="pwInput" type="password"
+        placeholder="請輸入密碼" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doLogin()">
+      <div class="login-err" id="loginErr">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="5"/><line x1="6" y1="4" x2="6" y2="6.5"/><circle cx="6" cy="8.5" r=".5" fill="currentColor"/></svg>
+        密碼錯誤，請再試一次
+      </div>
+      <button class="login-btn" onclick="doLogin()">登入</button>
+      <p class="login-hint">僅供內部使用，請勿分享此連結</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LOADING ══ -->
+<div id="loadingPage" style="display:none">
+  <div class="loading-wrap">
+    <div class="loading-spinner"></div>
+    <p class="loading-txt">載入資料中…</p>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div class="app" id="appPage" style="display:none">
+  <aside class="sb">
+    <div class="sb-logo">
+      <span class="logo-dot"></span>
+      <span class="logo-tx">Survey Analytics</span>
+      <span class="logo-badge">Beta</span>
+      <button class="sb-logout" onclick="doLogout()" title="登出">登出</button>
+    </div>
+    <div id="sb-bc" style="display:none"></div>
+    <div class="sb-scroll" id="sb-nav"></div>
+  </aside>
+  <div class="main">
+    <header class="topbar" id="topbar">
+      <span class="tb-title" id="tb-title">產品列表</span>
+      <span class="tb-sep" id="tb-sep" style="display:none"></span>
+      <div class="filters" id="tb-filters" style="display:none"></div>
+      <div class="dg" id="tb-date" style="display:none">
+        <button class="db" data-r="7" onclick="setRange(7)">7天</button>
+        <button class="db active" data-r="30" onclick="setRange(30)">30天</button>
+        <button class="db" data-r="90" onclick="setRange(90)">90天</button>
+      </div>
+      <div class="ds-badge" id="dsBadge" style="margin-left:auto">
+        <span class="ds-dot mock"></span>
+        <span id="dsLabel">Mock API</span>
+      </div>
+    </header>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ══════════════════════════════════════════════
+// CONFIG — 修改這裡切換資料來源
+// ══════════════════════════════════════════════
+const CONFIG = {
+  // 密碼（存在 HTML 裡，最簡單的保護）
+  PASSWORD: 'survey2025',
+
+  // 資料來源：'mock' 或 'sheets'
+  DATA_SOURCE: 'sheets',
+
+  // Google Apps Script Web App URL
+  SHEETS_URL: 'https://script.google.com/macros/s/AKfycbzgC8WPxgWOrGxYGOrKguwTnoV1KShxx3Nioyj4Y0Io8AA6EHeZmu3df9Liuve-oSIx3Q/exec',
+};
+
+// ══════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════
+function doLogin() {
+  const pw = document.getElementById('pwInput').value;
+  const err = document.getElementById('loginErr');
+  if (pw === CONFIG.PASSWORD) {
+    sessionStorage.setItem('sa_auth', '1');
+    err.classList.remove('show');
+    startApp();
+  } else {
+    err.classList.add('show');
+    document.getElementById('pwInput').select();
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('sa_auth');
+  location.reload();
+}
+
+function checkAuth() {
+  if (sessionStorage.getItem('sa_auth') === '1') {
+    startApp();
+  } else {
+    document.getElementById('loginPage').style.display = 'block';
+  }
+}
+
+// ══════════════════════════════════════════════
+// API LAYER — 切換 Mock / 真實 Google Sheets
+// ══════════════════════════════════════════════
+
+// 模擬延遲
+const delay = ms => new Promise(r => setTimeout(r, ms));
+
+// ── Mock data ──
+const MOCK = {
+  products: [
+    {id:'alpha', name:'Alpha 產品', icon:'🔷', color:'#2563e8', desc:'主力 B2B SaaS 平台，核心工作流管理工具', modules:4, nps:51, ces:2.1, csat:91, resp:1523, rate:38, nps_d:+8, ces_d:-0.3, csat_d:+4, resp_d:+87},
+    {id:'beta',  name:'Beta 產品',  icon:'🟢', color:'#43a047', desc:'消費者端行動應用，個人任務與專案追蹤',   modules:4, nps:31, ces:2.7, csat:82, resp:1318, rate:29, nps_d:+2, ces_d:+0.1, csat_d:+1, resp_d:+37},
+    {id:'gamma', name:'Gamma 產品', icon:'🟡', color:'#c6a600', desc:'數據分析儀表板，企業決策支援系統',       modules:3, nps:44, ces:2.4, csat:89, resp:642,  rate:31, nps_d:+3, ces_d:-0.1, csat_d:+2, resp_d:+18},
+  ],
+  surveys: {
+    alpha:[
+      {id:'S-001',name:'Onboarding NPS',    type:'NPS', module:'onboard', status:'live',   resp:342, rate:41, score:58,  created:'2025-04-01', tags:['功能強大','操作直覺']},
+      {id:'S-002',name:'結帳流程 CES',      type:'CES', module:'checkout',status:'live',   resp:891, rate:38, score:2.4, created:'2025-03-15', tags:['操作複雜','找不到入口']},
+      {id:'S-003',name:'客服滿意度 CSAT',   type:'CSAT',module:'support', status:'paused', resp:412, rate:29, score:79,  created:'2025-02-20', tags:['回應慢','態度好']},
+      {id:'S-004',name:'季度 Relational NPS',type:'NPS',module:null,      status:'draft',  resp:0,   rate:0,  score:null,created:'2025-05-01', tags:[]},
+    ],
+    beta:[
+      {id:'S-005',name:'首次使用 NPS',  type:'NPS', module:'onboard', status:'live',  resp:287, rate:35, score:41,  created:'2025-03-01', tags:['介面美觀','功能不足']},
+      {id:'S-006',name:'訂閱流程 CES',  type:'CES', module:'checkout',status:'live',  resp:534, rate:27, score:2.9, created:'2025-02-10', tags:['流程太長','付款卡住']},
+      {id:'S-007',name:'App 體驗 CSAT', type:'CSAT',module:'app',     status:'draft', resp:0,   rate:0,  score:null,created:'2025-05-10', tags:[]},
+    ],
+    gamma:[
+      {id:'S-008',name:'Dashboard 易用性 CES',type:'CES',module:'dashboard',status:'live',resp:312,rate:31,score:2.4,created:'2025-04-10',tags:['圖表清楚','匯出不便']},
+      {id:'S-009',name:'產品 NPS Q2',        type:'NPS',module:null,        status:'live',resp:218,rate:29,score:44, created:'2025-04-01',tags:[]},
+    ],
+  },
+  modules: {
+    alpha:[
+      {id:'onboard', name:'Onboarding',path:'/onboard', nps:58,ces:1.9,csat:92,n:342,status:'live'},
+      {id:'checkout',name:'結帳流程',  path:'/checkout',nps:45,ces:2.4,csat:88,n:891,status:'live'},
+      {id:'support', name:'客服中心',  path:'/support', nps:31,ces:3.1,csat:79,n:654,status:'live'},
+      {id:'settings',name:'帳號設定',  path:'/settings',nps:52,ces:2.0,csat:90,n:412,status:'live'},
+    ],
+    beta:[
+      {id:'onboard', name:'Onboarding',path:'/onboard', nps:41,ces:2.3,csat:85,n:287,status:'live'},
+      {id:'checkout',name:'訂閱流程',  path:'/checkout',nps:28,ces:2.9,csat:80,n:534,status:'live'},
+      {id:'app',     name:'App 主介面',path:'/app',     nps:35,ces:2.5,csat:83,n:498,status:'live'},
+      {id:'profile', name:'個人資料',  path:'/profile', nps:44,ces:2.1,csat:88,n:192,status:'paused'},
+    ],
+    gamma:[
+      {id:'dashboard',name:'Dashboard',path:'/dashboard',nps:44,ces:2.4,csat:89,n:312,status:'live'},
+      {id:'reports',  name:'報表中心',path:'/reports',  nps:38,ces:2.7,csat:84,n:198,status:'live'},
+      {id:'settings', name:'系統設定',path:'/settings', nps:50,ces:2.1,csat:91,n:132,status:'live'},
+    ],
+  },
+  feedbacks: {
+    alpha:[
+      {id:'F-2841',survey:'S-001',type:'NPS', score:9, cat:'g',mod:'onboard', comment:'流程非常順暢，比之前快很多',  tags:['功能強大','操作直覺'],time:'3分鐘前', date:'2025-06-15'},
+      {id:'F-2840',survey:'S-002',type:'CES', score:5, cat:'a',mod:'checkout',comment:'找到客服入口花了點時間',     tags:['操作複雜'],           time:'8分鐘前', date:'2025-06-15'},
+      {id:'F-2839',survey:'S-001',type:'NPS', score:10,cat:'g',mod:'onboard', comment:'引導清楚，很快就上手了',    tags:['操作直覺','性價比高'],time:'12分鐘前',date:'2025-06-15'},
+      {id:'F-2838',survey:'S-003',type:'CSAT',score:2, cat:'r',mod:'support', comment:'功能太少，設定項目不夠完整', tags:['功能不足'],           time:'21分鐘前',date:'2025-06-15'},
+      {id:'F-2837',survey:'S-002',type:'CES', score:2, cat:'g',mod:'checkout',comment:'',                          tags:[],                     time:'35分鐘前',date:'2025-06-15'},
+      {id:'F-2836',survey:'S-003',type:'CSAT',score:3, cat:'a',mod:'support', comment:'等待時間略長',               tags:['回應慢'],             time:'42分鐘前',date:'2025-06-14'},
+      {id:'F-2835',survey:'S-001',type:'NPS', score:8, cat:'a',mod:'onboard', comment:'整體不錯但說明文字可更清楚', tags:['更新積極'],           time:'1小時前', date:'2025-06-14'},
+      {id:'F-2834',survey:'S-002',type:'CES', score:6, cat:'r',mod:'checkout',comment:'找到優惠碼欄位費了很大力氣', tags:['操作複雜','找不到入口'],time:'1小時前',date:'2025-06-14'},
+    ],
+    beta:[
+      {id:'F-2820',survey:'S-005',type:'NPS',score:7,cat:'a',mod:'onboard', comment:'整體還不錯，但功能有點少',tags:['功能不足'],          time:'15分鐘前',date:'2025-06-15'},
+      {id:'F-2819',survey:'S-006',type:'CES',score:6,cat:'r',mod:'checkout',comment:'付款流程卡了三次',       tags:['流程太長','付款卡住'],time:'1小時前', date:'2025-06-15'},
+    ],
+    gamma:[
+      {id:'F-2810',survey:'S-008',type:'CES',score:3,cat:'g',mod:'dashboard',comment:'圖表一目了然',tags:['圖表清楚'],time:'30分鐘前',date:'2025-06-15'},
+    ],
+  },
+  trend:{
+    alpha:{nps:[35,38,37,40,39,42,41,44,42,45,43,47,44,46,43,51],ces:[2.6,2.5,2.5,2.4,2.4,2.3,2.3,2.2,2.3,2.2,2.2,2.1,2.2,2.3,2.3,2.1],csat:[83,84,84,85,85,86,86,87,87,87,88,88,88,87,87,91]},
+    beta: {nps:[27,28,28,30,29,31,30,33,31,34,32,35,32,33,31,31],ces:[2.9,2.8,2.8,2.7,2.7,2.7,2.7,2.6,2.7,2.6,2.6,2.5,2.6,2.7,2.7,2.7],csat:[79,80,80,81,81,82,82,82,82,83,83,84,83,82,82,82]},
+    gamma:{nps:[38,39,40,41,40,42,41,43,42,44,43,45,44,44,44,44],ces:[2.7,2.6,2.6,2.5,2.5,2.5,2.4,2.4,2.5,2.4,2.4,2.3,2.4,2.4,2.4,2.4],csat:[85,86,86,87,87,88,87,88,88,89,89,89,89,89,89,89]},
+  },
+  tlabels:['5/1','5/4','5/7','5/10','5/13','5/16','5/19','5/22','5/25','5/28','5/31','6/3','6/6','6/9','6/12','6/15'],
+};
+
+// ── API functions — 換成真實 Google Sheets 只需修改這個區塊 ──
+const API = {
+  async getProducts() {
+    if (CONFIG.DATA_SOURCE === 'mock') {
+      await delay(400);
+      return MOCK.products;
+    }
+    const res = await fetch(`${CONFIG.SHEETS_URL}?action=getProducts`);
+    return res.json();
+  },
+
+  async getSurveys(productId) {
+    if (CONFIG.DATA_SOURCE === 'mock') {
+      await delay(300);
+      return MOCK.surveys[productId] || [];
+    }
+    const res = await fetch(`${CONFIG.SHEETS_URL}?action=getSurveys&product=${productId}`);
+    return res.json();
+  },
+
+  async getModules(productId) {
+    if (CONFIG.DATA_SOURCE === 'mock') {
+      await delay(300);
+      return MOCK.modules[productId] || [];
+    }
+    const res = await fetch(`${CONFIG.SHEETS_URL}?action=getModules&product=${productId}`);
+    return res.json();
+  },
+
+  async getFeedbacks(productId) {
+    if (CONFIG.DATA_SOURCE === 'mock') {
+      await delay(300);
+      return MOCK.feedbacks[productId] || [];
+    }
+    const res = await fetch(`${CONFIG.SHEETS_URL}?action=getFeedbacks&product=${productId}`);
+    return res.json();
+  },
+
+  async getTrend(productId) {
+    if (CONFIG.DATA_SOURCE === 'mock') {
+      await delay(200);
+      return { data: MOCK.trend[productId], labels: MOCK.tlabels };
+    }
+    const res = await fetch(`${CONFIG.SHEETS_URL}?action=getTrend&product=${productId}`);
+    return res.json();
+  },
+
+  async getProductScore(productId) {
+    if (CONFIG.DATA_SOURCE === 'mock') {
+      await delay(200);
+      return MOCK.products.find(p => p.id === productId);
+    }
+    const res = await fetch(`${CONFIG.SHEETS_URL}?action=getScore&product=${productId}`);
+    return res.json();
+  },
+};
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+const S = {
+  page:'products', prod:null, sub:'overview',
+  surveyId:null, moduleId:null, feedbackId:null,
+  type:'all', range:30,
+  // 快取載入的資料
+  _products:null, _surveys:{}, _modules:{}, _feedbacks:{}, _trend:{}, _scores:{},
+};
+
+function nav(patch) { Object.assign(S, patch); render(); }
+function setRange(r) {
+  S.range = r;
+  document.querySelectorAll('[data-r]').forEach(e => e.classList.toggle('active', +e.dataset.r === r));
+  render();
+}
+
+// ══════════════════════════════════════════════
+// APP INIT
+// ══════════════════════════════════════════════
+async function startApp() {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('loadingPage').style.display = 'block';
+
+  // 更新 data source badge
+  const badge = document.getElementById('dsBadge');
+  const dot = badge.querySelector('.ds-dot');
+  const lbl = document.getElementById('dsLabel');
+  if (CONFIG.DATA_SOURCE === 'mock') {
+    dot.className = 'ds-dot mock';
+    lbl.textContent = 'Mock API';
+  } else {
+    dot.className = 'ds-dot live';
+    lbl.textContent = 'Google Sheets';
+  }
+
+  // 預載產品清單
+  S._products = await API.getProducts();
+
+  document.getElementById('loadingPage').style.display = 'none';
+  document.getElementById('appPage').style.display = 'flex';
+  render();
+}
+
+// ══════════════════════════════════════════════
+// RENDER — async 版本
+// ══════════════════════════════════════════════
+async function render() {
+  renderSidebar();
+  renderTopbar();
+  const c = document.getElementById('content');
+
+  // 顯示 skeleton 再載入資料
+  if (S.page === 'products') {
+    c.innerHTML = skeletonProducts();
+    const products = S._products || await API.getProducts();
+    S._products = products;
+    c.innerHTML = pageProducts(products);
+  }
+  else if (S.page === 'product') {
+    c.innerHTML = skeletonDetail();
+    const [score, surveys, modules, feedbacks, trend] = await Promise.all([
+      S._scores[S.prod]   || API.getProductScore(S.prod).then(d => { S._scores[S.prod] = d; return d; }),
+      S._surveys[S.prod]  || API.getSurveys(S.prod).then(d  => { S._surveys[S.prod]  = d; return d; }),
+      S._modules[S.prod]  || API.getModules(S.prod).then(d  => { S._modules[S.prod]  = d; return d; }),
+      S._feedbacks[S.prod]|| API.getFeedbacks(S.prod).then(d => { S._feedbacks[S.prod]= d; return d; }),
+      S._trend[S.prod]    || API.getTrend(S.prod).then(d    => { S._trend[S.prod]    = d; return d; }),
+    ]);
+    if      (S.sub === 'overview')   c.innerHTML = pageOverview(score, trend, modules, feedbacks);
+    else if (S.sub === 'surveys')    c.innerHTML = pageSurveys(surveys);
+    else if (S.sub === 'modules')    c.innerHTML = pageModules(modules);
+    else if (S.sub === 'feedbacks')  c.innerHTML = pageFeedbacks(feedbacks);
+    else if (S.sub === 'settings')   c.innerHTML = pageSettings(score);
+  }
+  else if (S.page === 'survey-detail') {
+    const surveys = S._surveys[S.prod] || Object.values(MOCK.surveys).flat();
+    const feedbacks = S._feedbacks[S.prod] || [];
+    c.innerHTML = pageSurveyDetail(surveys, feedbacks);
+  }
+  else if (S.page === 'module-detail') {
+    const modules = S._modules[S.prod] || [];
+    const feedbacks = S._feedbacks[S.prod] || [];
+    c.innerHTML = pageModuleDetail(modules, feedbacks);
+  }
+  else if (S.page === 'feedback-detail') {
+    const feedbacks = Object.values(S._feedbacks).flat();
+    c.innerHTML = pageFeedbackDetail(feedbacks);
+  }
+
+  requestAnimationFrame(() => requestAnimationFrame(animBars));
+}
+
+// ── Skeleton loaders ──
+function skeletonProducts() {
+  return `<div class="skel skel-title"></div>
+    <div class="prod-grid">
+      ${[1,2,3].map(()=>`<div class="skel skel-card"></div>`).join('')}
+    </div>
+    <div class="card"><div class="ch"><div class="skel" style="height:14px;width:80px"></div></div>
+      ${[1,2,3].map(()=>`<div class="skel skel-row"></div>`).join('')}
+    </div>`;
+}
+function skeletonDetail() {
+  return `<div class="sc-row" style="grid-template-columns:repeat(4,1fr)">
+    ${[1,2,3,4].map(()=>`<div class="skel" style="height:100px;border-radius:10px"></div>`).join('')}
+  </div>
+  <div class="two-col">
+    <div class="skel" style="height:200px;border-radius:10px"></div>
+    <div class="skel" style="height:200px;border-radius:10px"></div>
+  </div>`;
+}
+
+// ── Sidebar ──
+function renderSidebar() {
+  const nav = document.getElementById('sb-nav');
+  const bc  = document.getElementById('sb-bc');
+
+  if (S.page === 'products') {
+    bc.style.display = 'none';
+    nav.innerHTML = `<div class="sb-sec">
+      ${ni('products','產品列表','M2 3h12a1 1 0 011 1v10a1 1 0 01-1 1H2a1 1 0 01-1-1V4a1 1 0 011-1zm2 3h8M4 9h5',true)}
+    </div>`;
+  } else {
+    const prod = (S._products||MOCK.products).find(p => p.id === S.prod);
+    bc.style.display = 'block';
+    bc.innerHTML = `<div class="breadcrumb-nav">
+      <span class="bc-link" onclick="nav({page:'products',prod:null,sub:'overview'})">產品列表</span>
+      <span class="bc-sep">/</span>
+      <span style="color:var(--tx2);font-weight:500">${prod?.name||''}</span>
+    </div>`;
+    nav.innerHTML = `<div class="sb-sec">
+      <div class="sb-lbl">${prod?.icon} ${prod?.name}</div>
+      ${ni('overview','總覽','M2 12L8 6l4 4 4-5',S.page==='product'&&S.sub==='overview',()=>nav({page:'product',sub:'overview'}))}
+      ${ni('surveys','問卷管理','M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',S.page==='product'&&S.sub==='surveys'||S.page==='survey-detail',()=>nav({page:'product',sub:'surveys',surveyId:null}))}
+      ${ni('modules','模組管理','M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm6 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 11a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4z',S.page==='product'&&S.sub==='modules'||S.page==='module-detail',()=>nav({page:'product',sub:'modules',moduleId:null}))}
+      ${ni('feedbacks','用戶回饋','M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z',S.page==='product'&&S.sub==='feedbacks'||S.page==='feedback-detail',()=>nav({page:'product',sub:'feedbacks',feedbackId:null}))}
+      ${ni('settings','產品設定','M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z',S.page==='product'&&S.sub==='settings',()=>nav({page:'product',sub:'settings'}))}
+    </div>`;
+  }
+}
+
+function ni(id, label, pathD, active, onclick) {
+  const fn = onclick ? `onclick="(${onclick.toString()})()"` : `onclick="nav({page:'products'})"`;
+  return `<button class="ni${active?' active':''}" ${fn}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${pathD}"/></svg>
+    ${label}
+  </button>`;
+}
+
+// ── Topbar ──
+function renderTopbar() {
+  document.getElementById('tb-title').textContent =
+    S.page==='products'?'產品列表':S.page==='product'?{overview:'總覽',surveys:'問卷管理',modules:'模組管理',feedbacks:'用戶回饋',settings:'產品設定'}[S.sub]||'':
+    S.page==='survey-detail'?'問卷詳情':S.page==='module-detail'?'模組詳情':S.page==='feedback-detail'?'回饋詳情':'';
+
+  const showFilters = ['overview','surveys','feedbacks'].includes(S.sub) && S.page==='product';
+  document.getElementById('tb-sep').style.display = showFilters ? '' : 'none';
+  document.getElementById('tb-date').style.display = showFilters ? '' : 'none';
+
+  const tf = document.getElementById('tb-filters');
+  tf.style.display = showFilters ? '' : 'none';
+  if (showFilters) {
+    tf.innerHTML = ['all','NPS','CES','CSAT'].map(t => `
+      <button class="fp${S.type===t?' active':''}" onclick="S.type='${t}';render()">
+        ${t==='all'?'全部':`<span class="dot" style="background:${t==='NPS'?'#2563e8':t==='CES'?'#43a047':'#c6a600'}"></span>${t}`}
+      </button>`).join('');
+  }
+}
+
+// ══════════════════════════════════════════════
+// PAGES
+// ══════════════════════════════════════════════
+
+function pageProducts(products) {
+  const cards = products.map(p => `
+    <div class="prod-card" onclick="nav({page:'product',prod:'${p.id}',sub:'overview'})">
+      <div class="prod-card-top">
+        <div class="prod-icon" style="background:${p.color}18">${p.icon}</div>
+        <div class="prod-info"><div class="prod-name">${p.name}</div><div class="prod-desc">${p.desc}</div></div>
+        <div><span class="status st-live"><span class="live-dot"></span>上線</span></div>
+      </div>
+      <div class="prod-stats">
+        <div class="ps"><div class="ps-v" style="color:#2563e8">${p.nps>0?'+':''}${p.nps}</div><div class="ps-l">NPS</div></div>
+        <div class="ps"><div class="ps-v" style="color:#43a047">${p.ces}</div><div class="ps-l">CES</div></div>
+        <div class="ps"><div class="ps-v" style="color:#c6a600">${p.csat}%</div><div class="ps-l">CSAT</div></div>
+      </div>
+      <div class="prod-footer">
+        <span class="prod-modules">${p.modules} 個模組・${p.resp.toLocaleString()} 份回覆</span>
+        <span style="font-size:12px;color:var(--pri);font-weight:500">進入 →</span>
+      </div>
+    </div>`).join('');
+
+  const totResp = products.reduce((a,p) => a+p.resp, 0);
+  const rows = products.map(p => `<tr>
+    <td><span class="tbl-link" onclick="nav({page:'product',prod:'${p.id}',sub:'overview'})">${p.icon} ${p.name}</span></td>
+    <td><span class="spill sp-b">${p.nps>0?'+':''}${p.nps}</span></td>
+    <td><span class="spill sp-g">${p.ces}</span></td>
+    <td><span class="spill sp-b">${p.csat}%</span></td>
+    <td style="font-family:var(--m)">${p.resp.toLocaleString()}</td>
+    <td><span class="status st-live"><span class="live-dot"></span>上線</span></td>
+  </tr>`).join('');
+
+  return `
+    <div class="pg-hd">
+      <div class="pg-hd-l"><div class="pg-title">所有產品</div><div class="pg-sub">${products.length} 個產品・共 ${totResp.toLocaleString()} 份回覆</div></div>
+      <button class="btn btn-pri btn-sm">+ 新增產品</button>
+    </div>
+    <div class="prod-grid">${cards}</div>
+    <div class="card">
+      <div class="ch"><span class="ct">產品一覽</span></div>
+      <table class="tbl"><thead><tr><th>產品</th><th>NPS</th><th>CES</th><th>CSAT</th><th>回覆數</th><th>狀態</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>`;
+}
+
+function pageOverview(p, trend, mods, fbs) {
+  return `
+    ${scoreCards(p)}
+    <div class="two-col">${trendChart(trend)}${rateCard(p)}</div>
+    ${modBreakdown(mods)}
+    <div class="two-col">
+      ${tagBars('推薦者標籤','#2563e8',[{l:'功能強大',ct:187,p:72},{l:'操作直覺',ct:141,p:61},{l:'客服優質',ct:98,p:50},{l:'穩定可靠',ct:76,p:44}])}
+      ${tagBars('貶損者標籤','#d44d2e',[{l:'操作複雜',ct:96,p:69},{l:'功能不足',ct:84,p:59},{l:'客服回應慢',ct:62,p:50},{l:'價格偏高',ct:49,p:39}])}
+    </div>
+    ${recentFeedbacks(fbs, 5)}`;
+}
+
+function pageSurveys(surveys) {
+  const filtered = surveys.filter(s => S.type==='all' || s.type===S.type);
+  const rows = filtered.map(s => `<tr>
+    <td><span class="tbl-link" onclick="nav({page:'survey-detail',surveyId:'${s.id}'})">${s.name}</span></td>
+    <td><span class="tbadge tb-${s.type.toLowerCase()}">${s.type}</span></td>
+    <td>${stBadge(s.status)}</td>
+    <td style="font-family:var(--m)">${s.resp.toLocaleString()}</td>
+    <td>${s.rate?s.rate+'%':'—'}</td>
+    <td>${s.score!==null?`<span class="spill ${scoreClass(s.type,s.score)}">${s.score}</span>`:'—'}</td>
+    <td style="color:var(--tx3)">${s.created}</td>
+    <td><button class="btn btn-sec btn-sm" onclick="nav({page:'survey-detail',surveyId:'${s.id}'})">查看</button></td>
+  </tr>`).join('');
+  return `
+    <div class="pg-hd">
+      <div class="pg-hd-l"><div class="pg-title">問卷管理</div><div class="pg-sub">${filtered.length} 份問卷</div></div>
+      <button class="btn btn-pri btn-sm">+ 新增問卷</button>
+    </div>
+    <div class="card">
+      <table class="tbl"><thead><tr><th>名稱</th><th>類型</th><th>狀態</th><th>回覆數</th><th>回覆率</th><th>分數</th><th>建立日期</th><th></th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>`;
+}
+
+function pageModules(mods) {
+  const rows = mods.map(m => `<tr>
+    <td><span class="tbl-link" onclick="nav({page:'module-detail',moduleId:'${m.id}'})">${m.name}</span></td>
+    <td style="font-family:var(--m);color:var(--tx3)">${m.path}</td>
+    <td><span class="spill sp-b">${m.nps>0?'+':''}${m.nps}</span></td>
+    <td><span class="spill sp-g">${m.ces}</span></td>
+    <td><span class="spill sp-b">${m.csat}%</span></td>
+    <td style="font-family:var(--m)">${m.n}</td>
+    <td>${stBadge(m.status)}</td>
+    <td><button class="btn btn-sec btn-sm" onclick="nav({page:'module-detail',moduleId:'${m.id}'})">查看</button></td>
+  </tr>`).join('');
+  return `
+    <div class="pg-hd">
+      <div class="pg-hd-l"><div class="pg-title">模組管理</div><div class="pg-sub">${mods.length} 個功能模組</div></div>
+      <button class="btn btn-pri btn-sm">+ 新增模組</button>
+    </div>
+    <div class="card">
+      <table class="tbl"><thead><tr><th>模組名稱</th><th>路徑</th><th>NPS</th><th>CES</th><th>CSAT</th><th>回覆數</th><th>狀態</th><th></th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>`;
+}
+
+function pageFeedbacks(fbs) {
+  const filtered = fbs.filter(f => S.type==='all' || f.type===S.type);
+  return `
+    <div class="pg-hd">
+      <div class="pg-hd-l"><div class="pg-title">用戶回饋</div><div class="pg-sub">${filtered.length} 筆回覆</div></div>
+    </div>
+    ${feedbackTable(filtered, true)}`;
+}
+
+function pageSettings(p) {
+  return `
+    <div class="pg-hd">
+      <div class="pg-hd-l"><div class="pg-title">產品設定</div><div class="pg-sub">${p.name}</div></div>
+      <button class="btn btn-pri btn-sm">儲存</button>
+    </div>
+    <div class="two-col" style="align-items:start">
+      <div class="card">
+        <div class="ch"><span class="ct">基本資訊</span></div>
+        <div class="kv-list">
+          <div class="kv"><span class="kv-k">產品名稱</span><span class="kv-v" style="font-weight:500">${p.name}</span></div>
+          <div class="kv"><span class="kv-k">產品 ID</span><span class="kv-v" style="font-family:var(--m);color:var(--tx3)">${p.id}</span></div>
+          <div class="kv"><span class="kv-k">描述</span><span class="kv-v">${p.desc}</span></div>
+          <div class="kv"><span class="kv-k">狀態</span><span class="kv-v">${stBadge('live')}</span></div>
+          <div class="kv"><span class="kv-k">模組數</span><span class="kv-v">${p.modules}</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ct">觸發設定</span></div>
+        <div class="kv-list">
+          <div class="kv"><span class="kv-k">觸發延遲</span><span class="kv-v">頁面載入後 3 秒</span></div>
+          <div class="kv"><span class="kv-k">顯示頻率</span><span class="kv-v">每位用戶 90 天一次</span></div>
+          <div class="kv"><span class="kv-k">排除條件</span><span class="kv-v">新用戶（7 天內）</span></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function pageSurveyDetail(surveys, fbs) {
+  const s = surveys.find(x => x.id === S.surveyId);
+  if (!s) return '<div class="empty">找不到問卷</div>';
+  const related = fbs.filter(f => f.survey === s.id);
+  return `
+    <div class="pg-hd">
+      <div class="pg-hd-l">
+        <div style="font-size:11px;color:var(--tx3);margin-bottom:4px"><span class="tbl-link" onclick="nav({page:'product',sub:'surveys'})">問卷管理</span> / ${s.name}</div>
+        <div class="pg-title">${s.name}</div>
+        <div class="pg-sub" style="display:flex;align-items:center;gap:8px">${stBadge(s.status)}<span class="tbadge tb-${s.type.toLowerCase()}">${s.type}</span></div>
+      </div>
+      <div style="display:flex;gap:8px"><button class="btn btn-sec btn-sm">暫停</button><button class="btn btn-pri btn-sm">編輯</button></div>
+    </div>
+    <div class="three-col">
+      <div class="sc"><div class="sc-lbl">分數</div><div class="sc-val">${s.score!==null?(s.type==='NPS'&&s.score>0?'+':'')+s.score:'—'}</div><div class="sc-bar" style="background:linear-gradient(90deg,${s.type==='NPS'?'#e8f0fe,#2563e8':s.type==='CES'?'#e8f5e9,#43a047':'#fffde7,#c6a600'})"></div></div>
+      <div class="sc"><div class="sc-lbl">回覆數</div><div class="sc-val">${s.resp.toLocaleString()}</div><div class="sc-bar" style="background:linear-gradient(90deg,var(--n2),var(--n5))"></div></div>
+      <div class="sc"><div class="sc-lbl">回覆率</div><div class="sc-val">${s.rate||0}%</div><div class="sc-bar" style="background:linear-gradient(90deg,var(--n2),var(--n5))"></div></div>
+    </div>
+    <div class="two-col" style="align-items:start">
+      <div class="card">
+        <div class="ch"><span class="ct">問卷設定</span></div>
+        <div class="kv-list">
+          <div class="kv"><span class="kv-k">問卷 ID</span><span class="kv-v" style="font-family:var(--m);color:var(--tx3)">${s.id}</span></div>
+          <div class="kv"><span class="kv-k">類型</span><span class="kv-v"><span class="tbadge tb-${s.type.toLowerCase()}">${s.type}</span></span></div>
+          <div class="kv"><span class="kv-k">關聯模組</span><span class="kv-v">${s.module||'全產品'}</span></div>
+          <div class="kv"><span class="kv-k">建立日期</span><span class="kv-v">${s.created}</span></div>
+        </div>
+      </div>
+      ${tagBars('常見標籤','#2563e8',s.tags.map((t,i)=>({l:t,ct:80-i*15,p:70-i*12})))}
+    </div>
+    ${related.length ? feedbackTable(related, true) : '<div class="card"><div class="empty">尚無回覆資料</div></div>'}`;
+}
+
+function pageModuleDetail(mods, fbs) {
+  const m = mods.find(x => x.id === S.moduleId);
+  if (!m) return '<div class="empty">找不到模組</div>';
+  const related = fbs.filter(f => f.mod === m.name || f.mod === m.id);
+  return `
+    <div class="pg-hd">
+      <div class="pg-hd-l">
+        <div style="font-size:11px;color:var(--tx3);margin-bottom:4px"><span class="tbl-link" onclick="nav({page:'product',sub:'modules'})">模組管理</span> / ${m.name}</div>
+        <div class="pg-title">${m.name}</div>
+        <div class="pg-sub" style="font-family:var(--m);font-size:12px;color:var(--tx3)">${m.path}</div>
+      </div>${stBadge(m.status)}
+    </div>
+    <div class="three-col">
+      <div class="sc"><div class="sc-lbl"><span class="tbadge tb-nps">NPS</span></div><div class="sc-val" style="color:#2563e8">${m.nps>0?'+':''}${m.nps}</div><div class="sc-bar" style="background:linear-gradient(90deg,#e8f0fe,#2563e8)"></div></div>
+      <div class="sc"><div class="sc-lbl"><span class="tbadge tb-ces">CES</span></div><div class="sc-val" style="color:#43a047">${m.ces}</div><div class="sc-bar" style="background:linear-gradient(90deg,#e8f5e9,#43a047)"></div></div>
+      <div class="sc"><div class="sc-lbl"><span class="tbadge tb-csat">CSAT</span></div><div class="sc-val" style="color:#c6a600">${m.csat}%</div><div class="sc-bar" style="background:linear-gradient(90deg,#fffde7,#c6a600)"></div></div>
+    </div>
+    ${related.length ? feedbackTable(related, true) : '<div class="card"><div class="empty">尚無回饋資料</div></div>'}`;
+}
+
+function pageFeedbackDetail(fbs) {
+  const f = fbs.find(x => x.id === S.feedbackId);
+  if (!f) return '<div class="empty">找不到回饋</div>';
+  return `
+    <div class="pg-hd">
+      <div class="pg-hd-l">
+        <div style="font-size:11px;color:var(--tx3);margin-bottom:4px"><span class="tbl-link" onclick="nav({page:'product',sub:'feedbacks'})">用戶回饋</span> / ${f.id}</div>
+        <div class="pg-title">回饋詳情</div>
+        <div class="pg-sub">${f.date} · ${f.time}</div>
+      </div>
+      <span class="spill ${f.cat==='g'?'sp-g':f.cat==='a'?'sp-a':'sp-r'}" style="font-size:16px;width:36px;height:28px">${f.score}</span>
+    </div>
+    <div class="two-col" style="align-items:start">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card">
+          <div class="ch"><span class="ct">回饋內容</span></div>
+          <div class="cb">${f.comment?`<div class="fb-bubble">${f.comment}</div>`:'<span style="color:var(--tx3);font-size:13px">用戶未留下文字回饋</span>'}</div>
+        </div>
+        ${f.tags.length?`<div class="card"><div class="ch"><span class="ct">選擇的標籤</span></div><div class="cb"><div class="tag-chips">${f.tags.map(t=>`<span class="tag-chip sel">${t}</span>`).join('')}</div></div></div>`:''}
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ct">基本資訊</span></div>
+        <div class="kv-list">
+          <div class="kv"><span class="kv-k">回饋 ID</span><span class="kv-v" style="font-family:var(--m);color:var(--tx3)">${f.id}</span></div>
+          <div class="kv"><span class="kv-k">問卷</span><span class="kv-v"><span class="tbl-link" onclick="nav({page:'survey-detail',surveyId:'${f.survey}'})">${f.survey}</span></span></div>
+          <div class="kv"><span class="kv-k">類型</span><span class="kv-v"><span class="tbadge tb-${f.type.toLowerCase()}">${f.type}</span></span></div>
+          <div class="kv"><span class="kv-k">分數</span><span class="kv-v"><span class="spill ${f.cat==='g'?'sp-g':f.cat==='a'?'sp-a':'sp-r'}">${f.score}</span></span></div>
+          <div class="kv"><span class="kv-k">模組</span><span class="kv-v">${f.mod}</span></div>
+          <div class="kv"><span class="kv-k">回饋時間</span><span class="kv-v">${f.date}</span></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════
+// SHARED COMPONENTS
+// ══════════════════════════════════════════════
+function scoreCards(p) {
+  const sN=S.type==='all'||S.type==='NPS', sC=S.type==='all'||S.type==='CES', sT=S.type==='all'||S.type==='CSAT';
+  const cols=[sN,sC,sT,true].filter(Boolean).length;
+  let h='';
+  if(sN) h+=`<div class="sc"><div class="sc-lbl"><span class="tbadge tb-nps">NPS</span>Net Promoter Score</div><div class="sc-val">${p.nps>0?'+':''}${p.nps}</div><div class="sc-dl ${p.nps_d>0?'d-up':p.nps_d<0?'d-dn':'d-nu'}">${p.nps_d>0?'↑':p.nps_d<0?'↓':'—'} ${Math.abs(p.nps_d)} 較上期</div><div class="sc-sub">−100 到 +100</div><div class="sc-bar" style="background:linear-gradient(90deg,#e8f0fe,#2563e8)"></div></div>`;
+  if(sC) h+=`<div class="sc"><div class="sc-lbl"><span class="tbadge tb-ces">CES</span>Customer Effort Score</div><div class="sc-val">${p.ces}</div><div class="sc-dl ${p.ces_d<0?'d-up':p.ces_d>0?'d-dn':'d-nu'}">${p.ces_d<0?'↓':p.ces_d>0?'↑':'—'} ${Math.abs(p.ces_d)} 較上期</div><div class="sc-sub">1 輕鬆 → 7 費力</div><div class="sc-bar" style="background:linear-gradient(90deg,#e8f5e9,#43a047)"></div></div>`;
+  if(sT) h+=`<div class="sc"><div class="sc-lbl"><span class="tbadge tb-csat">CSAT</span>滿意度</div><div class="sc-val">${p.csat}<span style="font-size:14px;color:var(--tx3)">%</span></div><div class="sc-dl ${p.csat_d>0?'d-up':p.csat_d<0?'d-dn':'d-nu'}">${p.csat_d>0?'↑':p.csat_d<0?'↓':'—'} ${Math.abs(p.csat_d)}% 較上期</div><div class="sc-sub">4–5 分計入滿意</div><div class="sc-bar" style="background:linear-gradient(90deg,#fffde7,#c6a600)"></div></div>`;
+  h+=`<div class="sc"><div class="sc-lbl">📬 回收數</div><div class="sc-val">${p.resp.toLocaleString()}</div><div class="sc-dl d-up">↑ ${p.resp_d} 較上期</div><div class="sc-sub">回覆率 ${p.rate}%</div><div class="sc-bar" style="background:linear-gradient(90deg,var(--n2),var(--n5))"></div></div>`;
+  return `<div class="sc-row" style="grid-template-columns:repeat(${cols},1fr)">${h}</div>`;
+}
+
+function trendChart(trend) {
+  if (!trend) return '';
+  const td=trend.data, labels=trend.labels;
+  const n=16,W=480,H=140,pL=24,pR=8,pT=8,pB=20,iW=W-pL-pR,iH=H-pT-pB;
+  const sN=S.type==='all'||S.type==='NPS', sC=S.type==='all'||S.type==='CES', sS=S.type==='all'||S.type==='CSAT';
+  const norm=(a,mn,mx)=>a.map(v=>pT+iH-((v-mn)/(mx-mn||1))*iH);
+  const nY=norm(td.nps,-20,80),cY=norm(td.ces,1,5),sY=norm(td.csat,60,100);
+  const xP=td.nps.map((_,i)=>pL+(i/(n-1))*iW);
+  const ln=y=>y.map((v,i)=>(i===0?`M${xP[i]},${v}`:`L${xP[i]},${v}`)).join(' ');
+  const ar=y=>`${ln(y)} L${xP[n-1]},${pT+iH} L${pL},${pT+iH} Z`;
+  let s=`<svg class="chart-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gN" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563e8" stop-opacity=".1"/><stop offset="100%" stop-color="#2563e8" stop-opacity="0"/></linearGradient>
+    <linearGradient id="gC" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#43a047" stop-opacity=".1"/><stop offset="100%" stop-color="#43a047" stop-opacity="0"/></linearGradient>
+    <linearGradient id="gS" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c6a600" stop-opacity=".1"/><stop offset="100%" stop-color="#c6a600" stop-opacity="0"/></linearGradient>
+  </defs>`;
+  for(let i=0;i<=4;i++){const y=pT+(i/4)*iH;s+=`<line x1="${pL}" y1="${y}" x2="${W-pR}" y2="${y}" stroke="#e3e3e3" stroke-width=".5"/>`;}
+  if(sN){s+=`<path d="${ar(nY)}" fill="url(#gN)"/><path d="${ln(nY)}" fill="none" stroke="#2563e8" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${xP[n-1]}" cy="${nY[n-1]}" r="2.5" fill="#2563e8"/>`;}
+  if(sC){s+=`<path d="${ar(cY)}" fill="url(#gC)"/><path d="${ln(cY)}" fill="none" stroke="#43a047" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${xP[n-1]}" cy="${cY[n-1]}" r="2.5" fill="#43a047"/>`;}
+  if(sS){s+=`<path d="${ar(sY)}" fill="url(#gS)"/><path d="${ln(sY)}" fill="none" stroke="#c6a600" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${xP[n-1]}" cy="${sY[n-1]}" r="2.5" fill="#c6a600"/>`;}
+  labels.forEach((l,i)=>{if(i%4!==0&&i!==n-1)return;s+=`<text x="${xP[i]}" y="${H-4}" text-anchor="middle" font-size="8" fill="#b0b0b0" font-family="system-ui">${l}</text>`;});
+  s+=`</svg>`;
+  let leg='';
+  if(sN) leg+=`<div class="li"><span class="ll" style="background:#2563e8"></span>NPS</div>`;
+  if(sC) leg+=`<div class="li"><span class="ll" style="background:#43a047"></span>CES（反向）</div>`;
+  if(sS) leg+=`<div class="li"><span class="ll" style="background:#c6a600"></span>CSAT %</div>`;
+  return `<div class="card"><div class="ch"><span class="ct">分數趨勢</span><span class="cm">過去 ${S.range} 天</span></div>${s}<div class="chart-leg">${leg}</div></div>`;
+}
+
+function rateCard(p) {
+  const r=p.rate,c=2*Math.PI*28,f=(r/100)*c;
+  return `<div class="card"><div class="ch"><span class="ct">回覆率 & 分類</span><span class="cm">${p.resp.toLocaleString()} 份</span></div>
+  <div class="cb"><div class="rate-wrap">
+    <div class="rring">
+      <svg viewBox="0 0 72 72"><circle cx="36" cy="36" r="28" fill="none" stroke="#e3e3e3" stroke-width="6"/>
+      <circle cx="36" cy="36" r="28" fill="none" stroke="#2563e8" stroke-width="6" stroke-dasharray="${f} ${c-f}" stroke-linecap="round"/></svg>
+      <div class="rl">${r}%</div>
+    </div>
+    <div class="rate-bd">
+      <div class="ri"><span class="ri-d" style="background:#2563e8"></span><span class="ri-n">Promoters（9–10）</span><span class="ri-v">38%</span></div>
+      <div class="ri"><span class="ri-d" style="background:#c6a600"></span><span class="ri-n">Passives（7–8）</span><span class="ri-v">34%</span></div>
+      <div class="ri"><span class="ri-d" style="background:#d44d2e"></span><span class="ri-n">Detractors（0–6）</span><span class="ri-v">28%</span></div>
+      <div class="ri" style="margin-top:4px;padding-top:6px;border-top:1px solid var(--bd)">
+        <span class="ri-d" style="background:var(--n3)"></span><span class="ri-n">未回覆</span><span class="ri-v">${100-r}%</span>
+      </div>
+    </div>
+  </div></div></div>`;
+}
+
+function modBreakdown(mods) {
+  const sN=S.type==='all'||S.type==='NPS',sC=S.type==='all'||S.type==='CES',sS=S.type==='all'||S.type==='CSAT';
+  const rows=mods.map(m=>`<div class="mod-row">
+    <div><div class="mod-n"><span class="tbl-link" onclick="nav({page:'module-detail',moduleId:'${m.id}'})">${m.name}</span></div><div class="mod-p">${m.path}</div></div>
+    <div class="mod-scores">
+      ${sN?`<div class="msv"><div class="msv-n" style="color:#2563e8">${m.nps>0?'+':''}${m.nps}</div><div class="msv-l">NPS</div></div>`:''}
+      ${sN&&sC?'<div class="ms-sp"></div>':''}
+      ${sC?`<div class="msv"><div class="msv-n" style="color:#43a047">${m.ces}</div><div class="msv-l">CES</div></div>`:''}
+      ${(sN||sC)&&sS?'<div class="ms-sp"></div>':''}
+      ${sS?`<div class="msv"><div class="msv-n" style="color:#c6a600">${m.csat}%</div><div class="msv-l">CSAT</div></div>`:''}
+    </div>
+    <div style="font-size:11px;color:var(--tx3);font-family:var(--m)">n=${m.n}</div>
+  </div>`).join('');
+  return `<div class="card"><div class="ch"><span class="ct">模組分析</span><span class="cm" style="color:var(--pri);cursor:pointer;font-weight:500" onclick="nav({page:'product',sub:'modules'})">查看全部 →</span></div><div class="cb" style="padding:0 16px">${rows}</div></div>`;
+}
+
+function recentFeedbacks(fbs, limit) {
+  const data = fbs.slice(0, limit);
+  const rows = data.map(f=>`<tr>
+    <td style="font-family:var(--m);font-size:10px;color:var(--tx3)">${f.id}</td>
+    <td><span class="tbadge tb-${f.type.toLowerCase()}">${f.type}</span></td>
+    <td style="color:var(--tx3)">${f.mod}</td>
+    <td><span class="spill ${f.cat==='g'?'sp-g':f.cat==='a'?'sp-a':'sp-r'}">${f.score}</span></td>
+    <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.comment||'<span style="color:var(--tx3)">—</span>'}</td>
+    <td style="font-size:11px;color:var(--tx3);white-space:nowrap">${f.time}</td>
+    <td><button class="btn btn-sec btn-sm" onclick="nav({page:'feedback-detail',feedbackId:'${f.id}'})">查看</button></td>
+  </tr>`).join('');
+  return `<div class="card">
+    <div class="ch"><span class="ct">最新回覆</span><span class="cm" style="color:var(--pri);cursor:pointer;font-weight:500" onclick="nav({page:'product',sub:'feedbacks'})">查看全部 →</span></div>
+    <table class="tbl"><thead><tr><th>ID</th><th>類型</th><th>模組</th><th>分數</th><th>留言</th><th>時間</th><th></th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
+function feedbackTable(fbs, drill) {
+  const rows = fbs.map(f=>`<tr>
+    <td style="font-family:var(--m);font-size:10px;color:var(--tx3)">${f.id}</td>
+    <td><span class="tbadge tb-${f.type.toLowerCase()}">${f.type}</span></td>
+    <td style="color:var(--tx3)">${f.mod}</td>
+    <td><span class="spill ${f.cat==='g'?'sp-g':f.cat==='a'?'sp-a':'sp-r'}">${f.score}</span></td>
+    <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.comment||'<span style="color:var(--tx3)">—</span>'}</td>
+    <td>${f.tags.slice(0,2).map(t=>`<span class="tag-chip">${t}</span>`).join(' ')}</td>
+    <td style="font-size:11px;color:var(--tx3);white-space:nowrap">${f.time}</td>
+    ${drill?`<td><button class="btn btn-sec btn-sm" onclick="nav({page:'feedback-detail',feedbackId:'${f.id}'})">查看</button></td>`:''}
+  </tr>`).join('');
+  return `<div class="card">
+    <table class="tbl"><thead><tr><th>ID</th><th>類型</th><th>模組</th><th>分數</th><th>留言</th><th>標籤</th><th>時間</th>${drill?'<th></th>':''}</tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
+function tagBars(title, color, data) {
+  const bars=(data||[]).map(t=>`<div class="tbi"><div class="tbt"><span class="tbl2">${t.l}</span><span class="tbc">${t.ct}</span></div><div class="tbtr"><div class="tbf" style="background:${color}" data-pct="${t.p}"></div></div></div>`).join('');
+  return `<div class="card"><div class="ch"><span class="ct">${title}</span><span class="cm">% 提及率</span></div><div class="cb"><div class="tag-bars">${bars}</div></div></div>`;
+}
+
+function stBadge(st) {
+  return st==='live'?`<span class="status st-live"><span class="live-dot"></span>上線</span>`:
+         st==='draft'?`<span class="status st-draft">草稿</span>`:
+         `<span class="status st-paused">已暫停</span>`;
+}
+
+function scoreClass(type, score) {
+  if(type==='NPS')  return score>=9?'sp-g':score>=7?'sp-a':'sp-r';
+  if(type==='CES')  return score<=2?'sp-g':score<=4?'sp-a':'sp-r';
+  if(type==='CSAT') return score>=4?'sp-g':score>=3?'sp-a':'sp-r';
+  return 'sp-b';
+}
+
+function animBars() {
+  document.querySelectorAll('.tbf[data-pct]').forEach(el => {
+    requestAnimationFrame(() => { el.style.width = el.dataset.pct + '%'; });
+  });
+}
+
+// ── GO ──
+checkAuth();
+</script>
+</body>
+</html>
