@@ -180,6 +180,17 @@ html,body{height:100%;font-family:var(--sk-f);-webkit-font-smoothing:antialiased
 /* footer */
 .footer{font-size:10px;color:var(--sk-tx3);padding:7px 16px;background:#fff;border-top:1px solid var(--sk-n3);flex-shrink:0;text-align:center}
 .footer code{font-family:monospace;background:var(--sk-n1);padding:1px 5px;border-radius:4px;font-size:10px}
+
+/* dashboard button */
+.dash-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  height:30px;padding:0 12px;
+  background:var(--sk-bg);border:1px solid var(--sk-n3);border-radius:var(--sk-r);
+  font-size:12px;font-weight:500;font-family:var(--sk-f);
+  color:var(--sk-tx2);text-decoration:none;
+  transition:border-color .12s,color .12s,background .12s;
+}
+.dash-btn:hover{border-color:var(--sk-pri);color:var(--sk-pri);background:var(--sk-b1);}
 </style>
 </head>
 <body>
@@ -190,6 +201,7 @@ html,body{height:100%;font-family:var(--sk-f);-webkit-font-smoothing:antialiased
     <span class="badge">v1.0</span>
     <span class="sep2"></span>
     <span class="code-pill">SurveyKit.open('NPS', { onSubmit: fn, cooldown: 90 })</span>
+    <a href="./survey-dashboard.html" class="dash-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>觀測後台</a>
   </header>
 
   <div class="main">
