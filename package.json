@@ -1,0 +1,33 @@
+{
+  "name": "@gwyzzenn/survey-kit",
+  "version": "1.0.0",
+  "description": "NPS · CES · CSAT survey popover kit for internal systems",
+  "main": "./dist/survey-kit.umd.js",
+  "module": "./dist/survey-kit.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/survey-kit.es.js",
+      "require": "./dist/survey-kit.umd.js"
+    },
+    "./dist/survey-kit.css": "./dist/survey-kit.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gwyzzenn/surveykit_package.git"
+  },
+  "license": "UNLICENSED",
+  "private": false
+}
