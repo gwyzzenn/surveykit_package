@@ -404,17 +404,30 @@ function clearLog() {
   document.getElementById('conEmpty').style.display = 'flex';
 }
 
+// ── Apps Script URL ──
+var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzgC8WPxgWOrGxYGOrKguwTnoV1KShxx3Nioyj4Y0Io8AA6EHeZmu3df9Liuve-oSIx3Q/exec';
+
+function sendToSheets(data) {
+  var url = SHEETS_URL + '?action=save&data=' + encodeURIComponent(JSON.stringify(Object.assign({}, data, { system_id: 'preview' })));
+  fetch(url).catch(function(e) { console.warn('[survey-kit] Sheets sync failed:', e); });
+}
+
+function onSubmit(data) {
+  renderLog(data);
+  sendToSheets(data);
+}
+
 function triggerNPS() {
   SurveyKit.clearCooldown('NPS');
-  SurveyKit.open('NPS', { cooldown: 90, onSubmit: renderLog });
+  SurveyKit.open('NPS', { cooldown: 90, onSubmit: onSubmit });
 }
 function triggerCES() {
   SurveyKit.clearCooldown('CES');
-  SurveyKit.open('CES', { cooldown: 90, onSubmit: renderLog });
+  SurveyKit.open('CES', { cooldown: 90, onSubmit: onSubmit });
 }
 function triggerCSAT() {
   SurveyKit.clearCooldown('CSAT');
-  SurveyKit.open('CSAT', { cooldown: 90, onSubmit: renderLog });
+  SurveyKit.open('CSAT', { cooldown: 90, onSubmit: onSubmit });
 }
 </script>
 </body>
