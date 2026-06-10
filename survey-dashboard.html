@@ -7,22 +7,75 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --n1:#f7f7f7;--n2:#efefef;--n3:#e3e3e3;--n4:#d0d0d0;--n5:#b0b0b0;--n7:#686868;--n8:#484848;--n9:#282828;
-  --b1:#e8f0fe;--b5:#4880f0;--b6:#2563e8;--b7:#1a4fd6;--b8:#1340b8;
-  --do1:#fff0ed;--do6:#d44d2e;--do7:#b33520;
-  --g1:#e8f5e9;--g6:#43a047;--g7:#2e7d32;
-  --y1:#fffde7;--y7:#c6a600;--y8:#8d7200;
-  --bg:#fff;--bg-sub:var(--n1);--bg-ho:var(--n2);--bd:var(--n3);
-  --tx:var(--n9);--tx2:var(--n7);--tx3:var(--n5);
-  --pri:var(--b6);--pri-bg:var(--b1);--pri-ho:var(--b7);
-  --ok:var(--g6);--ok-bg:var(--g1);--ok-tx:var(--g7);
-  --wa:var(--y7);--wa-bg:var(--y1);--wa-tx:var(--y8);
-  --er:var(--do6);--er-bg:var(--do1);--er-tx:var(--do7);
+  /* ── ajenchen design system primitives (inline) ── */
+  --color-blue-6:  oklch(0.54 0.22 258);
+  --color-blue-1:  oklch(from oklch(0.54 0.22 258) calc(l+(1-l)*0.90) calc(c*0.14) h);
+  --color-blue-5:  oklch(from oklch(0.54 0.22 258) calc(l+(1-l)*0.20) calc(c*0.90) h);
+  --color-blue-7:  oklch(from oklch(0.54 0.22 258) calc(l*0.82) calc(c*0.93) h);
+  --color-blue-8:  oklch(from oklch(0.54 0.22 258) calc(l*0.62) calc(c*0.82) h);
+  --color-green-6: oklch(0.70 0.23 142);
+  --color-green-1: oklch(from oklch(0.70 0.23 142) calc(l+(1-l)*0.90) calc(c*0.14) h);
+  --color-green-7: oklch(from oklch(0.70 0.23 142) calc(l*0.82) calc(c*0.93) h);
+  --color-yellow-6:#F1B500;
+  --color-yellow-1:oklch(from oklch(0.87 0.17 90) calc(l+(1-l)*0.90) calc(c*0.14) h);
+  --color-yellow-7:oklch(from oklch(0.87 0.17 90) calc(l*0.82) calc(c*0.93) h);
+  --color-deep-orange-6: oklch(0.58 0.19 38);
+  --color-deep-orange-1: oklch(from oklch(0.58 0.19 38) calc(l+(1-l)*0.90) calc(c*0.14) h);
+  --color-deep-orange-7: oklch(from oklch(0.58 0.19 38) calc(l*0.82) calc(c*0.93) h);
+
+  /* ── semantic tokens ── */
+  --canvas:        #f4f5f9;
+  --surface:       #ffffff;
+  --foreground:    oklch(0 0 0 / 0.85);
+  --fg-secondary:  oklch(0 0 0 / 0.65);
+  --fg-muted:      oklch(0 0 0 / 0.45);
+  --fg-disabled:   oklch(0 0 0 / 0.25);
+  --border:        oklch(0 0 0 / 0.09);
+  --divider:       oklch(0 0 0 / 0.06);
+  --neutral-hover: oklch(0 0 0 / 0.02);
+  --neutral-selected: oklch(0 0 0 / 0.04);
+  --primary:       var(--color-blue-6);
+  --primary-hover: var(--color-blue-5);
+  --primary-active:var(--color-blue-7);
+  --primary-subtle:var(--color-blue-1);
+  --primary-text:  var(--color-blue-6);
+  --success:       var(--color-green-6);
+  --success-subtle:var(--color-green-1);
+  --success-text:  var(--color-green-6);
+  --warning:       var(--color-yellow-6);
+  --warning-subtle:var(--color-yellow-1);
+  --warning-text:  var(--color-yellow-6);
+  --error:         var(--color-deep-orange-6);
+  --error-subtle:  var(--color-deep-orange-1);
+  --error-text:    var(--color-deep-orange-6);
+
+  /* ── legacy aliases (keep existing CSS working) ── */
+  --n1:var(--neutral-hover);--n2:var(--neutral-selected);--n3:var(--divider);--n4:var(--border);
+  --n5:var(--fg-disabled);--n7:var(--fg-muted);--n8:var(--fg-secondary);--n9:var(--foreground);
+  --b1:var(--primary-subtle);--b5:var(--primary-hover);--b6:var(--primary);--b7:var(--primary-active);--b8:var(--color-blue-8);
+  --do1:var(--error-subtle);--do6:var(--error);--do7:var(--error-text);
+  --g1:var(--success-subtle);--g6:var(--success);--g7:var(--success-text);
+  --y1:var(--warning-subtle);--y7:var(--warning);--y8:var(--warning-text);
+  --bg:var(--surface);--bg-sub:var(--canvas);--bg-ho:var(--neutral-hover);--bd:var(--border);
+  --tx:var(--foreground);--tx2:var(--fg-secondary);--tx3:var(--fg-muted);
+  --pri:var(--primary);--pri-bg:var(--primary-subtle);--pri-ho:var(--primary-hover);
+  --ok:var(--success);--ok-bg:var(--success-subtle);--ok-tx:var(--success-text);
+  --wa:var(--warning);--wa-bg:var(--warning-subtle);--wa-tx:var(--warning-text);
+  --er:var(--error);--er-bg:var(--error-subtle);--er-tx:var(--error-text);
+
+  /* ── radius (design system) ── */
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+  --r: var(--radius-lg);
+  --rc: var(--radius-lg);
+
+  /* ── layout / type ── */
   --sb:216px;--tb:52px;
   --f:system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
-  --m:'JetBrains Mono',monospace;
-  --r:8px;--rc:10px;
-  --sh:0 1px 4px rgba(0,0,0,.06),0 0 0 1px var(--bd);
+  --m:'JetBrains Mono','SF Mono',monospace;
+  --sh:0 1px 3px rgba(0,0,0,.04),0 0 0 1px var(--border);
 }
 html,body{height:100%;font-family:var(--f);background:var(--bg-sub);color:var(--tx);-webkit-font-smoothing:antialiased;}
 button{font-family:var(--f);cursor:pointer;}
@@ -396,7 +449,7 @@ const MOCK = {
   products: [
     {id:'alpha', name:'Alpha 產品', icon:'🔷', color:'#2563e8', desc:'主力 B2B SaaS 平台，核心工作流管理工具', modules:4, nps:51, ces:2.1, csat:91, resp:1523, rate:38, nps_d:+8, ces_d:-0.3, csat_d:+4, resp_d:+87},
     {id:'beta',  name:'Beta 產品',  icon:'🟢', color:'#43a047', desc:'消費者端行動應用，個人任務與專案追蹤',   modules:4, nps:31, ces:2.7, csat:82, resp:1318, rate:29, nps_d:+2, ces_d:+0.1, csat_d:+1, resp_d:+37},
-    {id:'gamma', name:'Gamma 產品', icon:'🟡', color:'#c6a600', desc:'數據分析儀表板，企業決策支援系統',       modules:3, nps:44, ces:2.4, csat:89, resp:642,  rate:31, nps_d:+3, ces_d:-0.1, csat_d:+2, resp_d:+18},
+    {id:'gamma', name:'Gamma 產品', icon:'🟡', color:'#F1B500', desc:'數據分析儀表板，企業決策支援系統',       modules:3, nps:44, ces:2.4, csat:89, resp:642,  rate:31, nps_d:+3, ces_d:-0.1, csat_d:+2, resp_d:+18},
   ],
   surveys: {
     alpha:[
@@ -683,7 +736,7 @@ function renderTopbar() {
   if (showFilters) {
     tf.innerHTML = ['all','NPS','CES','CSAT'].map(t => `
       <button class="fp${S.type===t?' active':''}" onclick="S.type='${t}';render()">
-        ${t==='all'?'全部':`<span class="dot" style="background:${t==='NPS'?'#2563e8':t==='CES'?'#43a047':'#c6a600'}"></span>${t}`}
+        ${t==='all'?'全部':`<span class="dot" style="background:${t==='NPS'?'#2563e8':t==='CES'?'#43a047':'#F1B500'}"></span>${t}`}
       </button>`).join('');
   }
 }
@@ -703,7 +756,7 @@ function pageProducts(products) {
       <div class="prod-stats">
         <div class="ps"><div class="ps-v" style="color:#2563e8">${p.nps>0?'+':''}${p.nps}</div><div class="ps-l">NPS</div></div>
         <div class="ps"><div class="ps-v" style="color:#43a047">${p.ces}</div><div class="ps-l">CES</div></div>
-        <div class="ps"><div class="ps-v" style="color:#c6a600">${p.csat}%</div><div class="ps-l">CSAT</div></div>
+        <div class="ps"><div class="ps-v" style="color:#F1B500">${p.csat}%</div><div class="ps-l">CSAT</div></div>
       </div>
       <div class="prod-footer">
         <span class="prod-modules">${p.modules} 個模組・${p.resp.toLocaleString()} 份回覆</span>
@@ -842,7 +895,7 @@ function pageSurveyDetail(surveys, fbs) {
       <div style="display:flex;gap:8px"><button class="btn btn-sec btn-sm">暫停</button><button class="btn btn-pri btn-sm">編輯</button></div>
     </div>
     <div class="three-col">
-      <div class="sc"><div class="sc-lbl">分數</div><div class="sc-val">${s.score!==null?(s.type==='NPS'&&s.score>0?'+':'')+s.score:'—'}</div><div class="sc-bar" style="background:linear-gradient(90deg,${s.type==='NPS'?'#e8f0fe,#2563e8':s.type==='CES'?'#e8f5e9,#43a047':'#fffde7,#c6a600'})"></div></div>
+      <div class="sc"><div class="sc-lbl">分數</div><div class="sc-val">${s.score!==null?(s.type==='NPS'&&s.score>0?'+':'')+s.score:'—'}</div><div class="sc-bar" style="background:linear-gradient(90deg,${s.type==='NPS'?'#e8f0fe,#2563e8':s.type==='CES'?'#e8f5e9,#43a047':'#fffde7,#F1B500'})"></div></div>
       <div class="sc"><div class="sc-lbl">回覆數</div><div class="sc-val">${s.resp.toLocaleString()}</div><div class="sc-bar" style="background:linear-gradient(90deg,var(--n2),var(--n5))"></div></div>
       <div class="sc"><div class="sc-lbl">回覆率</div><div class="sc-val">${s.rate||0}%</div><div class="sc-bar" style="background:linear-gradient(90deg,var(--n2),var(--n5))"></div></div>
     </div>
@@ -876,7 +929,7 @@ function pageModuleDetail(mods, fbs) {
     <div class="three-col">
       <div class="sc"><div class="sc-lbl"><span class="tbadge tb-nps">NPS</span></div><div class="sc-val" style="color:#2563e8">${m.nps>0?'+':''}${m.nps}</div><div class="sc-bar" style="background:linear-gradient(90deg,#e8f0fe,#2563e8)"></div></div>
       <div class="sc"><div class="sc-lbl"><span class="tbadge tb-ces">CES</span></div><div class="sc-val" style="color:#43a047">${m.ces}</div><div class="sc-bar" style="background:linear-gradient(90deg,#e8f5e9,#43a047)"></div></div>
-      <div class="sc"><div class="sc-lbl"><span class="tbadge tb-csat">CSAT</span></div><div class="sc-val" style="color:#c6a600">${m.csat}%</div><div class="sc-bar" style="background:linear-gradient(90deg,#fffde7,#c6a600)"></div></div>
+      <div class="sc"><div class="sc-lbl"><span class="tbadge tb-csat">CSAT</span></div><div class="sc-val" style="color:#F1B500">${m.csat}%</div><div class="sc-bar" style="background:linear-gradient(90deg,#fffde7,#F1B500)"></div></div>
     </div>
     ${related.length ? feedbackTable(related, true) : '<div class="card"><div class="empty">尚無回饋資料</div></div>'}`;
 }
@@ -924,7 +977,7 @@ function scoreCards(p) {
   let h='';
   if(sN) h+=`<div class="sc"><div class="sc-lbl"><span class="tbadge tb-nps">NPS</span>Net Promoter Score</div><div class="sc-val">${p.nps>0?'+':''}${p.nps}</div><div class="sc-dl ${p.nps_d>0?'d-up':p.nps_d<0?'d-dn':'d-nu'}">${p.nps_d>0?'↑':p.nps_d<0?'↓':'—'} ${Math.abs(p.nps_d)} 較上期</div><div class="sc-sub">−100 到 +100</div><div class="sc-bar" style="background:linear-gradient(90deg,#e8f0fe,#2563e8)"></div></div>`;
   if(sC) h+=`<div class="sc"><div class="sc-lbl"><span class="tbadge tb-ces">CES</span>Customer Effort Score</div><div class="sc-val">${p.ces}</div><div class="sc-dl ${p.ces_d<0?'d-up':p.ces_d>0?'d-dn':'d-nu'}">${p.ces_d<0?'↓':p.ces_d>0?'↑':'—'} ${Math.abs(p.ces_d)} 較上期</div><div class="sc-sub">1 輕鬆 → 7 費力</div><div class="sc-bar" style="background:linear-gradient(90deg,#e8f5e9,#43a047)"></div></div>`;
-  if(sT) h+=`<div class="sc"><div class="sc-lbl"><span class="tbadge tb-csat">CSAT</span>滿意度</div><div class="sc-val">${p.csat}<span style="font-size:14px;color:var(--tx3)">%</span></div><div class="sc-dl ${p.csat_d>0?'d-up':p.csat_d<0?'d-dn':'d-nu'}">${p.csat_d>0?'↑':p.csat_d<0?'↓':'—'} ${Math.abs(p.csat_d)}% 較上期</div><div class="sc-sub">4–5 分計入滿意</div><div class="sc-bar" style="background:linear-gradient(90deg,#fffde7,#c6a600)"></div></div>`;
+  if(sT) h+=`<div class="sc"><div class="sc-lbl"><span class="tbadge tb-csat">CSAT</span>滿意度</div><div class="sc-val">${p.csat}<span style="font-size:14px;color:var(--tx3)">%</span></div><div class="sc-dl ${p.csat_d>0?'d-up':p.csat_d<0?'d-dn':'d-nu'}">${p.csat_d>0?'↑':p.csat_d<0?'↓':'—'} ${Math.abs(p.csat_d)}% 較上期</div><div class="sc-sub">4–5 分計入滿意</div><div class="sc-bar" style="background:linear-gradient(90deg,#fffde7,#F1B500)"></div></div>`;
   h+=`<div class="sc"><div class="sc-lbl">📬 回收數</div><div class="sc-val">${p.resp.toLocaleString()}</div><div class="sc-dl d-up">↑ ${p.resp_d} 較上期</div><div class="sc-sub">回覆率 ${p.rate}%</div><div class="sc-bar" style="background:linear-gradient(90deg,var(--n2),var(--n5))"></div></div>`;
   return `<div class="sc-row" style="grid-template-columns:repeat(${cols},1fr)">${h}</div>`;
 }
@@ -943,18 +996,18 @@ function trendChart(trend) {
   <defs>
     <linearGradient id="gN" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563e8" stop-opacity=".1"/><stop offset="100%" stop-color="#2563e8" stop-opacity="0"/></linearGradient>
     <linearGradient id="gC" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#43a047" stop-opacity=".1"/><stop offset="100%" stop-color="#43a047" stop-opacity="0"/></linearGradient>
-    <linearGradient id="gS" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c6a600" stop-opacity=".1"/><stop offset="100%" stop-color="#c6a600" stop-opacity="0"/></linearGradient>
+    <linearGradient id="gS" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F1B500" stop-opacity=".1"/><stop offset="100%" stop-color="#F1B500" stop-opacity="0"/></linearGradient>
   </defs>`;
   for(let i=0;i<=4;i++){const y=pT+(i/4)*iH;s+=`<line x1="${pL}" y1="${y}" x2="${W-pR}" y2="${y}" stroke="#e3e3e3" stroke-width=".5"/>`;}
   if(sN){s+=`<path d="${ar(nY)}" fill="url(#gN)"/><path d="${ln(nY)}" fill="none" stroke="#2563e8" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${xP[n-1]}" cy="${nY[n-1]}" r="2.5" fill="#2563e8"/>`;}
   if(sC){s+=`<path d="${ar(cY)}" fill="url(#gC)"/><path d="${ln(cY)}" fill="none" stroke="#43a047" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${xP[n-1]}" cy="${cY[n-1]}" r="2.5" fill="#43a047"/>`;}
-  if(sS){s+=`<path d="${ar(sY)}" fill="url(#gS)"/><path d="${ln(sY)}" fill="none" stroke="#c6a600" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${xP[n-1]}" cy="${sY[n-1]}" r="2.5" fill="#c6a600"/>`;}
+  if(sS){s+=`<path d="${ar(sY)}" fill="url(#gS)"/><path d="${ln(sY)}" fill="none" stroke="#F1B500" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${xP[n-1]}" cy="${sY[n-1]}" r="2.5" fill="#F1B500"/>`;}
   labels.forEach((l,i)=>{if(i%4!==0&&i!==n-1)return;s+=`<text x="${xP[i]}" y="${H-4}" text-anchor="middle" font-size="8" fill="#b0b0b0" font-family="system-ui">${l}</text>`;});
   s+=`</svg>`;
   let leg='';
   if(sN) leg+=`<div class="li"><span class="ll" style="background:#2563e8"></span>NPS</div>`;
   if(sC) leg+=`<div class="li"><span class="ll" style="background:#43a047"></span>CES（反向）</div>`;
-  if(sS) leg+=`<div class="li"><span class="ll" style="background:#c6a600"></span>CSAT %</div>`;
+  if(sS) leg+=`<div class="li"><span class="ll" style="background:#F1B500"></span>CSAT %</div>`;
   return `<div class="card"><div class="ch"><span class="ct">分數趨勢</span><span class="cm">過去 ${S.range} 天</span></div>${s}<div class="chart-leg">${leg}</div></div>`;
 }
 
@@ -977,7 +1030,7 @@ function rateCard(p, fbs) {
     </div>
     <div class="rate-bd">
       <div class="ri"><span class="ri-d" style="background:#2563e8"></span><span class="ri-n">Promoters（9–10）</span><span class="ri-v">${promoters}%</span></div>
-      <div class="ri"><span class="ri-d" style="background:#c6a600"></span><span class="ri-n">Passives（7–8）</span><span class="ri-v">${passives}%</span></div>
+      <div class="ri"><span class="ri-d" style="background:#F1B500"></span><span class="ri-n">Passives（7–8）</span><span class="ri-v">${passives}%</span></div>
       <div class="ri"><span class="ri-d" style="background:#d44d2e"></span><span class="ri-n">Detractors（0–6）</span><span class="ri-v">${detractors}%</span></div>
       ${total === 0 ? `<div class="ri" style="margin-top:4px;padding-top:6px;border-top:1px solid var(--bd)"><span class="ri-d" style="background:var(--n3)"></span><span class="ri-n">尚無 NPS 資料</span><span class="ri-v">—</span></div>` : ''}
     </div>
@@ -1024,7 +1077,7 @@ function modBreakdown(mods) {
       ${sN&&sC?'<div class="ms-sp"></div>':''}
       ${sC?`<div class="msv"><div class="msv-n" style="color:#43a047">${m.ces}</div><div class="msv-l">CES</div></div>`:''}
       ${(sN||sC)&&sS?'<div class="ms-sp"></div>':''}
-      ${sS?`<div class="msv"><div class="msv-n" style="color:#c6a600">${m.csat}%</div><div class="msv-l">CSAT</div></div>`:''}
+      ${sS?`<div class="msv"><div class="msv-n" style="color:#F1B500">${m.csat}%</div><div class="msv-l">CSAT</div></div>`:''}
     </div>
     <div style="font-size:11px;color:var(--tx3);font-family:var(--m)">n=${m.n}</div>
   </div>`).join('');
