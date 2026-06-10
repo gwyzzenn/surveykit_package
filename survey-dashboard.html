@@ -713,11 +713,11 @@ function pageProducts(products) {
 function pageOverview(p, trend, mods, fbs) {
   return `
     ${scoreCards(p)}
-    <div class="two-col">${trendChart(trend)}${rateCard(p)}</div>
+    <div class="two-col">${trendChart(trend)}${rateCard(p, fbs)}</div>
     ${modBreakdown(mods)}
     <div class="two-col">
-      ${tagBars('推薦者標籤','#2563e8',[{l:'功能強大',ct:187,p:72},{l:'操作直覺',ct:141,p:61},{l:'客服優質',ct:98,p:50},{l:'穩定可靠',ct:76,p:44}])}
-      ${tagBars('貶損者標籤','#d44d2e',[{l:'操作複雜',ct:96,p:69},{l:'功能不足',ct:84,p:59},{l:'客服回應慢',ct:62,p:50},{l:'價格偏高',ct:49,p:39}])}
+      ${tagBarsFromData('推薦者標籤','#2563e8', fbs, 'promoter')}
+      ${tagBarsFromData('貶損者標籤','#d44d2e', fbs, 'detractor')}
     </div>
     ${recentFeedbacks(fbs, 5)}`;
 }
@@ -811,7 +811,7 @@ function pageSurveyDetail(surveys, fbs) {
   return `
     <div class="pg-hd">
       <div class="pg-hd-l">
-        <div style="font-size:11px;color:var(--tx3);margin-bottom:4px"><span class="tbl-link" onclick="nav({page:'product',sub:'surveys'})">問卷管理</span> / ${s.name}</div>
+        <button class="btn btn-sec btn-sm" onclick="nav({page:'product',sub:'surveys'})" style="margin-bottom:8px">← 返回問卷管理</button>
         <div class="pg-title">${s.name}</div>
         <div class="pg-sub" style="display:flex;align-items:center;gap:8px">${stBadge(s.status)}<span class="tbadge tb-${s.type.toLowerCase()}">${s.type}</span></div>
       </div>
@@ -844,7 +844,7 @@ function pageModuleDetail(mods, fbs) {
   return `
     <div class="pg-hd">
       <div class="pg-hd-l">
-        <div style="font-size:11px;color:var(--tx3);margin-bottom:4px"><span class="tbl-link" onclick="nav({page:'product',sub:'modules'})">模組管理</span> / ${m.name}</div>
+        <button class="btn btn-sec btn-sm" onclick="nav({page:'product',sub:'modules'})" style="margin-bottom:8px">← 返回模組管理</button>
         <div class="pg-title">${m.name}</div>
         <div class="pg-sub" style="font-family:var(--m);font-size:12px;color:var(--tx3)">${m.path}</div>
       </div>${stBadge(m.status)}
@@ -863,7 +863,7 @@ function pageFeedbackDetail(fbs) {
   return `
     <div class="pg-hd">
       <div class="pg-hd-l">
-        <div style="font-size:11px;color:var(--tx3);margin-bottom:4px"><span class="tbl-link" onclick="nav({page:'product',sub:'feedbacks'})">用戶回饋</span> / ${f.id}</div>
+        <button class="btn btn-sec btn-sm" onclick="nav({page:'product',sub:'feedbacks'})" style="margin-bottom:8px">← 返回用戶回饋</button>
         <div class="pg-title">回饋詳情</div>
         <div class="pg-sub">${f.date} · ${f.time}</div>
       </div>
@@ -934,24 +934,61 @@ function trendChart(trend) {
   return `<div class="card"><div class="ch"><span class="ct">分數趨勢</span><span class="cm">過去 ${S.range} 天</span></div>${s}<div class="chart-leg">${leg}</div></div>`;
 }
 
-function rateCard(p) {
-  const r=p.rate,c=2*Math.PI*28,f=(r/100)*c;
+function rateCard(p, fbs) {
+  // 從真實回饋資料計算 NPS 分類
+  const npsResps = (fbs || []).filter(f => f.type === 'NPS');
+  const total = npsResps.length;
+  const promoters  = total ? Math.round(npsResps.filter(f => Number(f.score) >= 9).length / total * 100) : 0;
+  const passives   = total ? Math.round(npsResps.filter(f => Number(f.score) >= 7 && Number(f.score) <= 8).length / total * 100) : 0;
+  const detractors = total ? Math.round(npsResps.filter(f => Number(f.score) <= 6).length / total * 100) : 0;
+  const r = p.rate || 0;
+  const c = 2 * Math.PI * 28;
+  const f2 = (promoters / 100) * c;
   return `<div class="card"><div class="ch"><span class="ct">回覆率 & 分類</span><span class="cm">${p.resp.toLocaleString()} 份</span></div>
   <div class="cb"><div class="rate-wrap">
     <div class="rring">
       <svg viewBox="0 0 72 72"><circle cx="36" cy="36" r="28" fill="none" stroke="#e3e3e3" stroke-width="6"/>
-      <circle cx="36" cy="36" r="28" fill="none" stroke="#2563e8" stroke-width="6" stroke-dasharray="${f} ${c-f}" stroke-linecap="round"/></svg>
-      <div class="rl">${r}%</div>
+      <circle cx="36" cy="36" r="28" fill="none" stroke="#2563e8" stroke-width="6" stroke-dasharray="${f2} ${c-f2}" stroke-linecap="round"/></svg>
+      <div class="rl">${promoters}%</div>
     </div>
     <div class="rate-bd">
-      <div class="ri"><span class="ri-d" style="background:#2563e8"></span><span class="ri-n">Promoters（9–10）</span><span class="ri-v">38%</span></div>
-      <div class="ri"><span class="ri-d" style="background:#c6a600"></span><span class="ri-n">Passives（7–8）</span><span class="ri-v">34%</span></div>
-      <div class="ri"><span class="ri-d" style="background:#d44d2e"></span><span class="ri-n">Detractors（0–6）</span><span class="ri-v">28%</span></div>
-      <div class="ri" style="margin-top:4px;padding-top:6px;border-top:1px solid var(--bd)">
-        <span class="ri-d" style="background:var(--n3)"></span><span class="ri-n">未回覆</span><span class="ri-v">${100-r}%</span>
-      </div>
+      <div class="ri"><span class="ri-d" style="background:#2563e8"></span><span class="ri-n">Promoters（9–10）</span><span class="ri-v">${promoters}%</span></div>
+      <div class="ri"><span class="ri-d" style="background:#c6a600"></span><span class="ri-n">Passives（7–8）</span><span class="ri-v">${passives}%</span></div>
+      <div class="ri"><span class="ri-d" style="background:#d44d2e"></span><span class="ri-n">Detractors（0–6）</span><span class="ri-v">${detractors}%</span></div>
+      ${total === 0 ? `<div class="ri" style="margin-top:4px;padding-top:6px;border-top:1px solid var(--bd)"><span class="ri-d" style="background:var(--n3)"></span><span class="ri-n">尚無 NPS 資料</span><span class="ri-v">—</span></div>` : ''}
     </div>
   </div></div></div>`;
+}
+
+// 從真實回饋資料計算標籤出現頻率
+function tagBarsFromData(title, color, fbs, cat) {
+  const npsResps = (fbs || []).filter(f => f.type === 'NPS');
+  const filtered = npsResps.filter(f => {
+    const s = Number(f.score);
+    if (cat === 'promoter')  return s >= 9;
+    if (cat === 'detractor') return s <= 6;
+    return s >= 7 && s <= 8;
+  });
+
+  // 統計 tags 出現頻率
+  const counts = {};
+  filtered.forEach(f => {
+    (f.tags || []).forEach(t => {
+      if (t) counts[t] = (counts[t] || 0) + 1;
+    });
+  });
+
+  const sorted = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6);
+
+  if (sorted.length === 0) {
+    return `<div class="card"><div class="ch"><span class="ct">${title}</span><span class="cm">% 提及率</span></div><div class="empty">尚無資料</div></div>`;
+  }
+
+  const max = sorted[0][1];
+  const data = sorted.map(([l, ct]) => ({ l, ct, p: Math.round(ct / max * 100) }));
+  return tagBars(title, color, data);
 }
 
 function modBreakdown(mods) {
