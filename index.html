@@ -405,7 +405,7 @@ function clearLog() {
 }
 
 // ── Apps Script URL ──
-var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzgC8WPxgWOrGxYGOrKguwTnoV1KShxx3Nioyj4Y0Io8AA6EHeZmu3df9Liuve-oSIx3Q/exec';
+var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzPF-6xvNlBv_ROmDsvC1NoG8rurwUyKtGoCr0r_rfIYVWvMMZhdhhK6WtHbMDG2oL9Fw/exec';
 
 function sendToSheets(data) {
   var url = SHEETS_URL + '?action=save&data=' + encodeURIComponent(JSON.stringify(Object.assign({}, data, { system_id: 'preview' })));
