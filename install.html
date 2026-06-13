@@ -107,7 +107,7 @@ code{font-family:var(--m);font-size:12px;background:var(--canvas);border:1px sol
 </nav>
 
 <div class="hero">
-  <p class="hero-eyebrow">Internal Package · Private · GitHub Packages</p>
+  <p class="hero-eyebrow">Public Package · npm · MIT License</p>
   <h1 class="hero-title"><code>@gwyzzenn/survey-kit</code></h1>
   <p class="hero-sub">NPS · CES · CSAT 三合一調查 Popover 套件，供各內部系統引用。一行程式碼觸發問卷，回饋資料自動寫入 Google Sheets。</p>
   <div class="hero-chips">
@@ -131,23 +131,7 @@ code{font-family:var(--m);font-size:12px;background:var(--canvas);border:1px sol
       <div class="step">
         <div class="step-hd">
           <div class="step-num">1</div>
-          <div><div class="step-title">設定 .npmrc</div><div class="step-desc">在專案根目錄建立，指向 GitHub Packages registry</div></div>
-        </div>
-        <div class="step-body">
-          <div class="code-block">
-            <div class="code-hd"><span class="code-lang">.npmrc</span><button class="copy-btn" onclick="copy(this, '@gwyzzenn:registry=https://npm.pkg.github.com\n//npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN')">複製</button></div>
-            <div class="code-body"><pre><span class="cm"># 加到專案根目錄的 .npmrc</span>
-<span class="ck">@gwyzzenn</span><span class="cs">:registry</span>=https://npm.pkg.github.com
-<span class="cm">//npm.pkg.github.com/:_authToken=</span><span class="cn">YOUR_GITHUB_TOKEN</span></pre></div>
-          </div>
-          <p style="font-size:11px;color:var(--fg3);margin-top:8px">Token 需有 <code>read:packages</code> 權限 → GitHub → Settings → Developer settings → Personal access tokens</p>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-hd">
-          <div class="step-num">2</div>
-          <div><div class="step-title">安裝套件</div><div class="step-desc">透過 npm 安裝</div></div>
+          <div><div class="step-title">安裝套件</div><div class="step-desc">透過 npm 安裝，公開套件不需要額外設定</div></div>
         </div>
         <div class="step-body">
           <div class="code-block">
@@ -159,7 +143,7 @@ code{font-family:var(--m);font-size:12px;background:var(--canvas);border:1px sol
 
       <div class="step">
         <div class="step-hd">
-          <div class="step-num">3</div>
+          <div class="step-num">2</div>
           <div><div class="step-title">引入並呼叫</div><div class="step-desc">在適當時機觸發問卷，並傳入 onSubmit 送到後端</div></div>
         </div>
         <div class="step-body">
@@ -268,7 +252,6 @@ window.<span class="cp">addEventListener</span>(<span class="cs">'DOMContentLoad
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         <div>
           <strong>CSS 必須獨立引入</strong> — <code>import '@gwyzzenn/survey-kit/dist/survey-kit.css'</code> 不可省略，否則樣式不會套用。<br>
-          <strong style="margin-top:4px;display:block">.npmrc 不要 commit</strong> — 含有 token 的 .npmrc 不應進版控，建議加入 .gitignore，CI 環境改用環境變數注入。<br>
           <strong style="margin-top:4px;display:block">Cooldown 用 localStorage</strong> — 同一台機器同一瀏覽器才有效，跨裝置不同步。
         </div>
       </div>
@@ -278,7 +261,7 @@ window.<span class="cp">addEventListener</span>(<span class="cs">'DOMContentLoad
 </div>
 
 <footer class="footer">
-  <p>@gwyzzenn/survey-kit · Private · <a href="https://github.com/gwyzzenn/surveykit_package" target="_blank">GitHub</a> · <a href="./survey-dashboard.html">觀測後台</a></p>
+  <p>@gwyzzenn/survey-kit · Open Source · <a href="https://github.com/gwyzzenn/surveykit_package" target="_blank">GitHub</a> · <a href="./survey-dashboard.html">觀測後台</a></p>
 </footer>
 
 <script>
